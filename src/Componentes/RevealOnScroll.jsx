@@ -12,12 +12,12 @@ export default function RevealOnScroll({ children, className = "", delayClass = 
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.unobserve(node);
-        }
+        setVisible(entry.isIntersecting);
       },
-      { threshold: 0.16 }
+      {
+        threshold: 0.2,
+        rootMargin: "0px 0px -10% 0px",
+      }
     );
 
     observer.observe(node);

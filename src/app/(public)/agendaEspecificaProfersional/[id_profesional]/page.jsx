@@ -1,11 +1,11 @@
 "use client";
-import {useMemo, useState, useEffect, useRef} from "react";
-import {useAgenda} from "@/ContextosGlobales/AgendaContext";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { useAgenda } from "@/ContextosGlobales/AgendaContext";
 import Link from "next/link";
 import ShadcnButton2 from "@/Componentes/shadcnButton2";
-import {toast} from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import * as React from "react";
-import {useParams, useRouter} from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 function formatDateToYMD(date) {
     const y = date.getFullYear();
@@ -15,16 +15,16 @@ function formatDateToYMD(date) {
 }
 
 export default function CalendarioMensualHoras() {
-    const {id_profesional} = useParams();
+    const { id_profesional } = useParams();
     const [nombreProfesional, setNombreProfesional] = useState("");
     const [mesActual, setMesActual] = useState(new Date());
     const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
     // Ref para evitar que resultados asíncronos antiguos sobrescriban acciones manuales recientes
     const lastManualUpdateRef = useRef(0);
     const API = process.env.NEXT_PUBLIC_API_URL;
-    
+
     const router = useRouter();
-    
+
     function formularioReservaProfesional(id_profesional) {
         router.push(`/formularioReservaProfesional/${id_profesional}`);
     }
@@ -34,8 +34,8 @@ export default function CalendarioMensualHoras() {
             try {
                 const res = await fetch(`${API}/profesionales/seleccionarProfesional`, {
                     method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({id_profesional})
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id_profesional })
                 });
                 const data = await res.json();
                 if (data && data[0]?.nombreProfesional) {
@@ -96,7 +96,7 @@ export default function CalendarioMensualHoras() {
         while (cursor + 60 <= endMinutes) {
             const attStart = cursor;
             const attEnd = cursor + 60;
-            slots.push({start: minutesToHHMM(attStart), end: minutesToHHMM(attEnd)});
+            slots.push({ start: minutesToHHMM(attStart), end: minutesToHHMM(attEnd) });
             // avanzar 60 + 10 minutos (=70) para el siguiente inicio
             cursor = attEnd + 10;
         }
@@ -217,7 +217,7 @@ export default function CalendarioMensualHoras() {
                                 const copy = new Set(prev);
                                 copy.delete(n.start);
                                 // actualizar resumen también
-                                setCheckSummary({blocked: copy.size, total: attentionSlots.length});
+                                setCheckSummary({ blocked: copy.size, total: attentionSlots.length });
                                 return copy;
                             });
                         }
@@ -234,7 +234,7 @@ export default function CalendarioMensualHoras() {
 
     const [blockedHours, setBlockedHours] = useState(new Set());
     const [checkingBlocked, setCheckingBlocked] = useState(false);
-    const [checkSummary, setCheckSummary] = useState({blocked: 0, total: 0});
+    const [checkSummary, setCheckSummary] = useState({ blocked: 0, total: 0 });
 
     // Comprueba si un slot está disponible. Devuelve true si está disponible, false si está ocupado.
     // showToast: opcional, si true mostrará mensajes de error al usuario.
@@ -252,7 +252,7 @@ export default function CalendarioMensualHoras() {
                     Accept: 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, id_profesional})
+                body: JSON.stringify({ fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, id_profesional })
             });
 
             let respuestaBackend;
@@ -288,17 +288,17 @@ export default function CalendarioMensualHoras() {
                 error: false
             };
 
-            if (res.ok) return {available: true, status, body: respuestaBackend, error: false};
+            if (res.ok) return { available: true, status, body: respuestaBackend, error: false };
 
             // status no OK y sin body
             if (!res.ok) {
                 if (showToast) toast.error('No hay respuesta válida del servidor');
-                return {available: false, status, body: respuestaBackend, error: false};
+                return { available: false, status, body: respuestaBackend, error: false };
             }
         } catch (error) {
             if (showToast) toast.error('Error de red al validar disponibilidad');
             console.error('validarFechaDisponible error:', error);
-            return {available: true, status: 0, body: null, error: true};
+            return { available: true, status: 0, body: null, error: true };
         }
     }
 
@@ -326,7 +326,7 @@ export default function CalendarioMensualHoras() {
                     const batch = attentionEntries.slice(i, i + limit);
                     const batchResults = await Promise.all(batch.map(async (entry) => {
                         const result = await validarFechaDisponible(fechaYMD, entry.start, fechaYMD, entry.end, false, id_profesional);
-                        return {h: entry.start, ...result};
+                        return { h: entry.start, ...result };
                     }));
 
                     checks.push(...batchResults);
@@ -346,9 +346,9 @@ export default function CalendarioMensualHoras() {
                 } else {
                     setBlockedHours(blocked);
                     // actualizar resumen para debug en UI
-                    setCheckSummary({blocked: blocked.size, total: attentionEntries.length});
+                    setCheckSummary({ blocked: blocked.size, total: attentionEntries.length });
                 }
-                console.debug('checkBlocked ->', {total: attentionEntries.length, blocked: blocked.size, raw: checks});
+                console.debug('checkBlocked ->', { total: attentionEntries.length, blocked: blocked.size, raw: checks });
 
 
 
@@ -397,7 +397,7 @@ export default function CalendarioMensualHoras() {
                     </h1>
 
                     <p className="max-w-md text-sm leading-6 text-slate-500">
-                        Reserva tu hora odontológica en segundos. Selecciona fecha y un bloque horario disponible.
+                        Selecciona fecha y un bloque horario disponible.
                     </p>
                 </header>
 
@@ -406,7 +406,7 @@ export default function CalendarioMensualHoras() {
                         <h2 className="text-sm font-semibold text-slate-800">Agenda mensual</h2>
                         <span className="text-[12px] text-slate-500">Selecciona un día</span>
                     </div>
-                    <div className="mt-3 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent"/>
+                    <div className="mt-3 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
 
                     {/* Navegación mes */}
                     <div className="mt-3 flex items-center justify-between">
@@ -424,7 +424,7 @@ export default function CalendarioMensualHoras() {
                             ←
                         </button>
                         <strong className="capitalize text-sm font-semibold text-slate-800">
-                            {mesActual.toLocaleString("es-CL", {month: "long", year: "numeric"})}
+                            {mesActual.toLocaleString("es-CL", { month: "long", year: "numeric" })}
                         </strong>
                         <button
                             className="rounded-lg border border-gray-900 bg-gray-900 px-2.5 py-1 text-xs font-semibold text-white shadow-md shadow-slate-900/5 hover:bg-gray-800 active:scale-[0.98] hover:shadow-lg hover:shadow-slate-900/10"
@@ -445,7 +445,7 @@ export default function CalendarioMensualHoras() {
                     <div className="mt-4 grid grid-cols-7 gap-2 rounded-xl bg-slate-900/[0.02] p-2 ring-1 ring-slate-900/5">
                         {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((d, idx) => (
                             <strong key={`weekday-${idx}`}
-                                    className="text-center text-xs font-semibold text-slate-500">{d}</strong>
+                                className="text-center text-xs font-semibold text-slate-500">{d}</strong>
                         ))}
 
                         {dias.map((dia, i) =>
@@ -481,7 +481,7 @@ export default function CalendarioMensualHoras() {
                                     </button>
                                 );
                             })() : (
-                                <div key={i}/>
+                                <div key={i} />
                             )
                         )}
                     </div>
@@ -498,11 +498,11 @@ export default function CalendarioMensualHoras() {
                                     {checkingBlocked && (
                                         <div className="flex items-center gap-2 text-xs text-slate-500">
                                             <svg className="w-3 h-3 animate-spin text-slate-500"
-                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle className="opacity-25" cx="12" cy="12" r="10"
-                                                        stroke="currentColor" strokeWidth="4"></circle>
+                                                    stroke="currentColor" strokeWidth="4"></circle>
                                                 <path className="opacity-75" fill="currentColor"
-                                                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                                             </svg>
                                             <span>Comprobando disponibilidad...</span>
                                         </div>
@@ -540,7 +540,7 @@ export default function CalendarioMensualHoras() {
 
                                         return (
                                             <div key={entry.start}
-                                                 className={"flex items-center justify-between rounded-xl border p-3 shadow-sm hover:shadow-md hover:shadow-slate-900/5 transition " + (selected ? "bg-green-50 border-green-300" : "bg-white/90 border-slate-200")}>
+                                                className={"flex items-center justify-between rounded-xl border p-3 shadow-sm hover:shadow-md hover:shadow-slate-900/5 transition " + (selected ? "bg-green-50 border-green-300" : "bg-white/90 border-slate-200")}>
                                                 <div>
                                                     <div className="text-sm font-medium text-slate-800">Atención</div>
                                                     <div className="text-xs text-slate-500">{entry.start} – {entry.end}</div>
@@ -576,31 +576,31 @@ export default function CalendarioMensualHoras() {
                                     })();
                                     return !isBlocked && !isPastHour;
                                 }).length === 0 && (
-                                    <div className="text-center py-8 text-red-500">
-                                        <p className="text-sm">No hay horarios disponibles para esta fecha</p>
-                                        <p className="text-xs mt-1">Por favor selecciona otra fecha</p>
-                                    </div>
-                                )}
+                                        <div className="text-center py-8 text-red-500">
+                                            <p className="text-sm">No hay horarios disponibles para esta fecha</p>
+                                            <p className="text-xs mt-1">Por favor selecciona otra fecha</p>
+                                        </div>
+                                    )}
                             </div>
 
                         </div>
                     )}
                 </div>
-                <br/>
+                <br />
 
                 <div className="flex gap-5 justify-center">
                     <Link href={"/agendaProfesionales"}>
-                        <ShadcnButton2 nombre={"RETROCEDER"}/>
+                        <ShadcnButton2 nombre={"RETROCEDER"} />
                     </Link>
 
 
-                        <ShadcnButton2 nombre={"SIGUIENTE"} funcion={()=>formularioReservaProfesional(id_profesional)}/>
+                    <ShadcnButton2 nombre={"SIGUIENTE"} funcion={() => formularioReservaProfesional(id_profesional)} />
 
                 </div>
 
                 <footer className="mt-10 text-center text-xs text-slate-600">
                     <p>
-                        Odontología clínica integral con atención personalizada para cada paciente.
+                        Sucursales adaptadas y personalizada para que tus pacientes se sientan en casa.
                     </p>
                     <p className="mt-2 text-[11px] text-slate-400">
                         Horarios: Lun-Sáb 9:00-22:00 | Dom Cerrado

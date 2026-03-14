@@ -1,70 +1,184 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, X, ChevronDown } from "lucide-react";
 
 const navItems = [
   { label: "Inicio", href: "/#inicio" },
-  { label: "Servicios", href: "/#servicios" },
-  { label: "Casos clinicos", href: "/#casos-clinicos" },
-  { label: "Contacto", href: "/contacto" },
+  { label: "Por que elegirnos", href: "/#por-que-elegirnos" },
+  { label: "Servicios", href: "/servicios" },
 ];
+
+const branchItems = [
+  {
+    label: "Providencia",
+    href: "/sucursales/providencia-lota",
+  },
+  {
+    label: "AV. Nueva Providencia",
+    href: "/sucursales/nueva-providencia",
+  },
+  {
+    label: "Antofagasta",
+    href: "/sucursales/antofagasta",
+  },
+];
+
+const RESERVA_HREF = "/agendaProfesionales";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [isBranchesOpen, setIsBranchesOpen] = useState(false);
+  const branchesRef = useRef(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!branchesRef.current) return;
+      if (!branchesRef.current.contains(event.target)) {
+        setIsBranchesOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") setIsBranchesOpen(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  const headerClass = scrolled
+    ? "border-slate-200 bg-[#f7f2ea]/90"
+    : "border-transparent bg-transparent";
+  const navLinkClass = "text-emerald-900 hover:text-emerald-700";
+  const chevronClass = "text-emerald-700 group-hover:text-emerald-900";
+  const ctaClass = "border-emerald-700 bg-emerald-700 text-white hover:bg-emerald-600";
+  const iconButtonClass = "border-emerald-200 bg-white text-emerald-900 hover:bg-emerald-50";
+  const brandClass = "text-emerald-900";
+  const brandSubClass = "text-emerald-700";
+
+  const isActiveLink = (href) => {
+    if (!href || href.startsWith("/#")) return false;
+    return pathname === href || pathname?.startsWith(`${href}/`);
+  };
+
+  const activeNavClass = "text-emerald-700 underline underline-offset-8";
+  const activeDropdownClass = "bg-emerald-50 text-emerald-800";
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 bg-[linear-gradient(180deg,rgba(116,120,127,0.42)_0%,rgba(41,43,47,0.58)_45%,rgba(4,4,5,0.76)_100%)] backdrop-blur-2xl">
+    <header
+      className={[
+        "fixed inset-x-0 top-0 z-50 border-b backdrop-blur-xl transition-colors duration-300",
+        headerClass,
+      ].join(" ")}
+    >
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:h-20 md:h-24 md:px-8 lg:px-6">
-
-        {/* Logo */}
         <Link href="/#inicio" aria-label="Ir al inicio" className="group flex shrink-0 items-center gap-2 sm:gap-3">
-          <div className="relative h-10 w-10 sm:h-14 sm:w-14 md:h-20 md:w-20">
+          <div className="relative h-10 w-16 sm:h-12 sm:w-20 md:h-14 md:w-24">
             <Image
-              src="/logodifort.png"
-              alt="Ortega & Schmuck"
+              src="/logoespacio.png"
+              alt="Espacio Descubrirte"
               fill
               priority
-              sizes="(max-width: 640px) 40px, (max-width: 768px) 56px, 80px"
-              className="object-cover object-center transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 640px) 40px, (max-width: 768px) 56px, 72px"
+              className="object-contain object-center transition-transform duration-300 group-hover:scale-105"
             />
           </div>
           <div className="min-w-0">
-            <p className="truncate text-xs font-medium uppercase tracking-[0.2em] text-white sm:text-sm sm:tracking-[0.28em]">
-              Ortega & Schmuck
+            <p className={["truncate text-xs font-semibold uppercase tracking-[0.22em] sm:text-sm", brandClass].join(" ")}>
+              Espacio Descubrirte
             </p>
-            <p className="hidden truncate text-[8px] uppercase tracking-[0.2em] text-white/65 sm:block sm:text-[9px]">
-              Odontología y Medicina Estética.
+            <p className={["hidden truncate text-[9px] uppercase tracking-[0.18em] sm:block", brandSubClass].join(" ")}>
+              Boxes profesionales para terapia
             </p>
           </div>
         </Link>
 
-        {/* Nav desktop */}
         <nav aria-label="Menu principal" className="hidden lg:block">
-          <ul className="flex items-center gap-8 xl:gap-12">
+          <ul className="flex items-center gap-8 xl:gap-10">
             {navItems.map((item) => (
               <li key={item.label}>
                 <Link
                   href={item.href}
-                  className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/80 transition-colors duration-300 hover:text-white"
+                  aria-current={isActiveLink(item.href) ? "page" : undefined}
+                  className={[
+                    "text-[11px] font-semibold uppercase tracking-[0.22em] transition-colors duration-300",
+                    navLinkClass,
+                    isActiveLink(item.href) ? activeNavClass : "",
+                  ].join(" ")}
                 >
                   {item.label}
                 </Link>
               </li>
             ))}
+            <li className="relative" ref={branchesRef}>
+              <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={isBranchesOpen}
+                onClick={() => setIsBranchesOpen((prev) => !prev)}
+                className={[
+                  "inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] transition-colors duration-300",
+                  navLinkClass,
+                ].join(" ")}
+              >
+                Sucursales
+                <ChevronDown className={["h-4 w-4 transition duration-300", chevronClass].join(" ")} />
+              </button>
+              <div
+                className={[
+                  "absolute left-0 top-full z-50 mt-4 w-72 translate-y-2 rounded-2xl border border-slate-200 bg-white p-2 opacity-0 shadow-[0_24px_60px_-30px_rgba(15,23,42,0.35)] transition duration-200",
+                  isBranchesOpen ? "visible translate-y-0 opacity-100" : "invisible",
+                ].join(" ")}
+              >
+                {branchItems.map((branch) => (
+                  <Link
+                    key={branch.href}
+                    href={branch.href}
+                    aria-current={isActiveLink(branch.href) ? "page" : undefined}
+                    onClick={() => setIsBranchesOpen(false)}
+                    className={[
+                      "block rounded-xl px-4 py-3 text-sm font-medium text-emerald-900 transition hover:bg-emerald-50 hover:text-emerald-800",
+                      isActiveLink(branch.href) ? activeDropdownClass : "",
+                    ].join(" ")}
+                  >
+                    {branch.label}
+                  </Link>
+                ))}
+              </div>
+            </li>
           </ul>
         </nav>
 
-        {/* Acciones */}
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <Link
-            href="/agendaProfesionales"
-            aria-label="Agendar hora"
-            className="hidden rounded-full border border-white/25 bg-white px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-black transition duration-300 ease-out hover:bg-white/90 sm:inline-flex sm:px-5 sm:py-2.5 sm:text-xs"
+            href={RESERVA_HREF}
+            aria-label="Reservar box"
+            className={[
+              "hidden rounded-full border px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] transition duration-300 ease-out sm:inline-flex sm:px-5 sm:py-2.5 sm:text-xs",
+              ctaClass,
+            ].join(" ")}
           >
-            Agendar hora
+            Reserva
           </Link>
 
           <button
@@ -72,39 +186,66 @@ export default function Navbar() {
             aria-label={isOpen ? "Cerrar menu" : "Abrir menu"}
             aria-expanded={isOpen}
             onClick={() => setIsOpen((prev) => !prev)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white transition hover:bg-white/20 sm:h-10 sm:w-10 lg:hidden"
+            className={[
+              "inline-flex h-9 w-9 items-center justify-center rounded-full border transition sm:h-10 sm:w-10 lg:hidden",
+              iconButtonClass,
+            ].join(" ")}
           >
             {isOpen ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Menu className="h-4 w-4 sm:h-5 sm:w-5" />}
           </button>
         </div>
       </div>
 
-      {/* Menu móvil */}
       <div
         className={[
-          "overflow-hidden border-t border-white/10 bg-black/90 backdrop-blur-xl lg:hidden",
-          isOpen ? "max-h-[420px] opacity-100" : "max-h-0 opacity-0",
+          "overflow-hidden border-t border-slate-200 bg-white/95 backdrop-blur-xl lg:hidden",
+          isOpen ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0",
           "transition-all duration-300 ease-out",
         ].join(" ")}
       >
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-1 px-4 py-4 sm:gap-2 sm:px-5 sm:py-5 md:px-8">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 py-4 sm:px-5 md:px-8">
           {navItems.map((item) => (
             <Link
               key={item.label}
               href={item.href}
               onClick={() => setIsOpen(false)}
-              className="rounded-lg border border-transparent px-4 py-3 text-[11px] font-medium uppercase tracking-[0.16em] text-white/85 transition duration-300 hover:border-white/15 hover:bg-white/10 sm:text-xs"
+              aria-current={isActiveLink(item.href) ? "page" : undefined}
+              className={[
+                "rounded-lg border border-transparent px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-900 transition duration-300 hover:border-emerald-200 hover:bg-emerald-50",
+                isActiveLink(item.href) ? "bg-emerald-50 text-emerald-800" : "",
+              ].join(" ")}
             >
               {item.label}
             </Link>
           ))}
+
+          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-emerald-700">Sucursales</p>
+            <div className="mt-2 flex flex-col gap-1">
+              {branchItems.map((branch) => (
+                <Link
+                  key={branch.href}
+                  href={branch.href}
+                  onClick={() => setIsOpen(false)}
+                  aria-current={isActiveLink(branch.href) ? "page" : undefined}
+                  className={[
+                    "rounded-lg px-3 py-2 text-sm font-medium text-emerald-900 transition hover:bg-emerald-50",
+                    isActiveLink(branch.href) ? "bg-emerald-50 text-emerald-800" : "",
+                  ].join(" ")}
+                >
+                  {branch.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
           <Link
-            href="/agendaProfesionales"
+            href={RESERVA_HREF}
             onClick={() => setIsOpen(false)}
-            aria-label="Agendar hora desde menu movil"
-            className="mt-2 rounded-lg border border-white/25 bg-white px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.16em] text-black transition duration-300 hover:bg-white/90 sm:text-xs"
+            aria-label="Reservar box desde menu movil"
+            className="mt-1 rounded-lg border border-emerald-700 bg-emerald-700 px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-white transition duration-300 hover:bg-emerald-600"
           >
-            Agendar hora
+            Reserva
           </Link>
         </div>
       </div>
