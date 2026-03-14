@@ -26,10 +26,10 @@ export function ShadcnNavBar() {
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold uppercase tracking-[0.22em] text-white/95">
-              Ortega & Schmuck
+              Espacio Descubrirte
             </p>
             <p className="truncate text-[11px] uppercase tracking-[0.18em] text-white/65">
-              Odontología clínica integral
+              Boxes profesionales para terapia
             </p>
           </div>
         </Link>
@@ -54,7 +54,7 @@ export function ShadcnNavBar() {
             href="/agendaProfesionales"
             className="hidden rounded-full border border-[#d6a283] bg-[#c88d6d] px-6 py-2.5 text-[12px] font-semibold uppercase tracking-[0.16em] text-[#3f4145] transition hover:bg-[#d8a88b] sm:inline-flex"
           >
-            Agendar evaluacion
+            Ir a agenda
           </Link>
 
           <button

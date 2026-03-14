@@ -20,7 +20,7 @@ const fadeUp = {
 
 const highlights = [
   "Agenda inteligente",
-  "Fichas clinicas",
+  "Fichas de pacientes",
   "Recordatorios automaticos",
 ];
 
@@ -114,7 +114,7 @@ export default function Page() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
               </span>
-              <span className="text-[11px] text-slate-500">Cloud clinical operating system</span>
+              <span className="text-[11px] text-slate-500">Plataforma de gestion profesional</span>
             </div>
           </motion.div>
 
@@ -184,7 +184,7 @@ export default function Page() {
                 <div className="mb-5">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-700">Acceso seguro</p>
                   <h2 className={michroma.className + " mt-2.5 text-[18px] text-slate-900"}>Iniciar sesion</h2>
-                  <p className="mt-1.5 text-[12px] text-slate-500">Accede a tu panel de administracion clinica.</p>
+                  <p className="mt-1.5 text-[12px] text-slate-500">Accede a tu panel de administracion.</p>
                 </div>
 
                 <button
@@ -263,7 +263,7 @@ export default function Page() {
 
                 <div className="mt-5 border-t border-slate-200 pt-4">
                   <p className="text-center text-[11px] text-slate-400">
-                    Sin acceso? Contacta al administrador de tu clinica.
+                    Sin acceso? Contacta al administrador de la plataforma.
                   </p>
                 </div>
               </div>

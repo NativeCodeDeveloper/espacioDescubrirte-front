@@ -23,7 +23,7 @@ import {InputTextDinamic} from "@/Componentes/InputTextDinamic";
 
 export default function PresupuestoTratamiento() {
     const API = process.env.NEXT_PUBLIC_API_URL;
-    const EMPRESA_NOMBRE = process.env.NEXT_PUBLIC_EMPRESA_NOMBRE || "Ortega & Schmuck";
+    const EMPRESA_NOMBRE = process.env.NEXT_PUBLIC_EMPRESA_NOMBRE || "Espacio Descubrirte";
     const [listaServicios, setListaServicios] = useState([]);
     const [listaPresupuesto, setListaPresupuesto] = useState([]);
     const [totalPresupuesto, setTotalPresupuesto] = useState(0);

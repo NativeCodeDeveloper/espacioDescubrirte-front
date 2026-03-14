@@ -44,11 +44,11 @@ function ReservaHoraContent() {
               </h1>
 
               <p className="mt-2 text-slate-700">
-                Su hora con{" "}
+                Tu hora con{" "}
                 <span className="font-semibold text-slate-900">
-                  el equipo clínico de Ortega & Schmuck
+                  el equipo de Espacio Descubrirte
                 </span>{" "}
-                ha sido reservada con éxito.
+                ha sido reservada con exito.
               </p>
             </div>
           </div>
@@ -112,7 +112,7 @@ function ReservaHoraContent() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-slate-900">Ubicación</p>
-                    <p className="text-sm text-slate-600">Clínica Ortega & Schmuck, Providencia, Santiago de Chile</p>
+                    <p className="text-sm text-slate-600">Sucursal Providencia, Espacio Descubrirte</p>
                   </div>
                 </div>
               </div>
@@ -123,13 +123,13 @@ function ReservaHoraContent() {
                 ¡Tu cita ha sido confirmada!
               </p>
               <p className="mt-3 text-sm text-slate-700 leading-relaxed">
-                Recuerda asistir puntualmente. Si necesitas cancelar o reagendar, hazlo con al menos 24 horas de anticipación. Te esperamos.
+                Recuerda asistir puntualmente. Si necesitas cancelar o reagendar, hazlo con al menos 24 horas de anticipacion.
               </p>
             </div>
 
             <div className="mt-7 flex flex-col items-center gap-3">
               <a
-                href="/AgendaProceso"
+                href="/agendaProfesionales"
                 className="inline-flex w-full max-w-xs items-center justify-center rounded-xl bg-gray-900 px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-300"
               >
                 Agendar otra cita

@@ -40,27 +40,27 @@ const manrope = Manrope({
 });
 
 export const metadataBase = new URL(
-  process.env.NEXT_PUBLIC_SITE_URL || "https://www.ortegaschmuck.cl"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.descubrirte.cl"
 );
 
 export const metadata = {
   title: {
-    default: "Ortega & Schmuck | Clínica Dental Premium",
-    template: "%s | Ortega & Schmuck",
+    default: "Espacio Descubrirte | Arriendo de Boxes para Terapia",
+    template: "%s | Espacio Descubrirte",
   },
   description:
-    "Sitio oficial de Ortega & Schmuck. Odontología clínica integral con tecnología avanzada y planes personalizados.",
+    "Arriendo de boxes para psicologos y terapeutas. Espacios profesionales, ubicaciones estrategicas y reserva flexible.",
   keywords: [
-    "Ortega & Schmuck",
-    "clinica dental",
-    "odontologia integral",
-    "rehabilitacion oral",
-    "diseno de sonrisa",
-    "implantes dentales",
-    "clinica premium",
+    "Espacio Descubrirte",
+    "arriendo de boxes",
+    "boxes para psicologos",
+    "boxes para terapeutas",
+    "consultas profesionales",
+    "salas de terapia",
+    "arriendo por horas",
   ],
-  authors: [{ name: "Ortega & Schmuck", url: metadataBase.href }],
-  publisher: "Ortega & Schmuck",
+  authors: [{ name: "Espacio Descubrirte", url: metadataBase.href }],
+  publisher: "Espacio Descubrirte",
   robots: {
     index: true,
     follow: true,
@@ -72,19 +72,23 @@ export const metadata = {
     canonical: metadataBase.href,
   },
   openGraph: {
-    title: "Ortega & Schmuck | Clínica Dental Premium",
+    title: "Espacio Descubrirte | Arriendo de Boxes para Terapia",
     description:
-      "Experiencia clínica premium con enfoque integral en odontología y rehabilitación oral.",
+      "Boxes profesionales para terapia con reserva flexible en Providencia y Antofagasta.",
     url: metadataBase.href,
-    siteName: "Ortega & Schmuck",
+    siteName: "Espacio Descubrirte",
     locale: "es_CL",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ortega & Schmuck",
+    title: "Espacio Descubrirte",
     description:
-      "Odontología clínica premium con protocolos personalizados.",
+      "Arriendo de boxes para psicologos y terapeutas con ubicaciones estrategicas.",
+  },
+  icons: {
+    icon: "/logoespacio.png",
+    apple: "/logoespacio.png",
   },
 };
 

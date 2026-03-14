@@ -69,7 +69,7 @@ export default function NavbarDashboard() {
                 }
               }}
             >
-                Ortega & Schmuck
+                Espacio Descubrirte
             </Typography>
           </Box>
 
