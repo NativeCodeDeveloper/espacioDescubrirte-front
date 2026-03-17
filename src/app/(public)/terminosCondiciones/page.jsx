@@ -14,12 +14,12 @@ export default function TerminosCondicionesPage() {
         </h1>
         <p className="mt-6 text-sm leading-relaxed text-slate-700 sm:text-base">
           Esta pagina se encuentra en actualizacion. Si necesitas revisar condiciones
-          de servicio, escribenos a contacto@descubrirte.cl y te responderemos a la brevedad.
+          de servicio, escribenos a descubrirteterapia@gmail.com y te responderemos a la brevedad.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
           <a
-            href="mailto:contacto@descubrirte.cl"
+            href="mailto:descubrirteterapia@gmail.com"
             className="inline-flex rounded-full border border-emerald-200 bg-white px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-900 transition hover:border-emerald-300"
           >
             Contactar soporte

@@ -3,20 +3,20 @@ import RevealOnScroll from "@/Componentes/RevealOnScroll";
 
 const reasons = [
   {
-    title: "Ambiente profesional",
-    text: "Boxes cuidadosamente decorados, con privacidad y condiciones optimas para terapia.",
+    title: "Privacidad y comodidad",
+    text: "Cada detalle del espacio esta pensado para generar confianza, privacidad y comodidad.",
   },
   {
-    title: "Flexibilidad total",
-    text: "Arriendo por hora o jornadas completas segun la demanda de tu consulta.",
+    title: "Boxes equipados",
+    text: "Consultas listas para psicoterapia individual, de pareja y familiar.",
   },
   {
-    title: "Soporte continuo",
-    text: "Coordinacion directa para disponibilidad, pagos y necesidades de tu agenda.",
+    title: "Arriendo flexible",
+    text: "Modalidad por horas o bloques semanales para adaptarse a tu agenda.",
   },
   {
-    title: "Ubicaciones estrategicas",
-    text: "Sucursales con facil acceso en Providencia y Antofagasta.",
+    title: "Comunidad profesional",
+    text: "Un entorno humano y respetuoso que acompana el trabajo terapeutico.",
   },
 ];
 
@@ -31,7 +31,7 @@ export default function Seccion3() {
             <div className="max-w-3xl">
               <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Por que elegirnos</p>
               <h2 className="mt-4 max-w-3xl text-balance text-3xl font-light leading-tight tracking-[0.02em] sm:text-4xl lg:text-5xl">
-              Todo lo que necesitas para brindar una experiencia profesional a tus pacientes.
+              La salud mental merece lugares adecuados, humanos y respetuosos.
               </h2>
             </div>
 
@@ -65,12 +65,12 @@ export default function Seccion3() {
         <RevealOnScroll>
           <div className="mt-12 flex flex-col items-start justify-between gap-6 rounded-[2rem] border border-slate-200 bg-[#f7f2ea] px-6 py-10 sm:flex-row sm:items-center sm:px-10">
             <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Reserva estandar</p>
+              <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Reserva flexible</p>
               <h3 className="mt-4 text-2xl font-light leading-tight text-slate-900 sm:text-3xl">
                 Agenda tu box y comienza a atender con confianza.
               </h3>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-                Estamos listos para ayudarte a encontrar el espacio perfecto para tu practica.
+                Espacio Descubrirte no es solo un lugar fisico, es un entorno que potencia el trabajo terapeutico.
               </p>
             </div>
             <Link

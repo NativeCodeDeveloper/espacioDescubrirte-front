@@ -58,11 +58,11 @@ export default function SeccionComuncacion() {
                 <section className="mt-50 px-6">
                     <div className="max-w-7xl mx-auto text-center">
                         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight">
-                            Revisa nuestras <span className="bg-gradient-to-r from-violet-500 to-sky-500 bg-clip-text text-transparent">novedades clínicas</span>
+                            Revisa nuestras <span className="bg-gradient-to-r from-violet-500 to-sky-500 bg-clip-text text-transparent">novedades de la comunidad</span>
                         </h1>
 
                         <p className="mt-4 text-gray-500 text-lg">
-                            Mejoramos tu salud oral con tecnología y protocolos personalizados
+                            Compartimos recursos y actualizaciones para profesionales de la salud mental
                         </p>
 
 
@@ -116,11 +116,11 @@ export default function SeccionComuncacion() {
                 <section className="mt-50 px-6">
                     <div className="max-w-7xl mx-auto text-center">
                         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight">
-                            Revisa nuestras <span className="bg-gradient-to-r from-violet-500 to-sky-500 bg-clip-text text-transparent">novedades clínicas</span>
+                            Revisa nuestras <span className="bg-gradient-to-r from-violet-500 to-sky-500 bg-clip-text text-transparent">novedades de la comunidad</span>
                         </h1>
 
                         <p className="mt-4 text-gray-500 text-lg">
-                            Mejoramos tu salud oral con tecnología y protocolos personalizados
+                            Compartimos recursos y actualizaciones para profesionales de la salud mental
                         </p>
 
                         <br />

@@ -18,8 +18,8 @@ export default function AntofagastaPage() {
             Av. Angamos 193, Antofagasta
           </p>
           <p className="mt-6 text-sm leading-7 text-slate-600">
-            Box profesional en zona centrica, climatizado y con ambiente tranquilo para la
-            atencion de pacientes. Ideal para terapeutas que buscan presencia local.
+            Sucursal Angamos en segundo piso. Box pensado para terapias individuales y
+            familiares, con un ambiente tranquilo para la atencion de pacientes.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -40,7 +40,7 @@ export default function AntofagastaPage() {
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_24px_60px_-40px_rgba(15,23,42,0.25)]">
           <div className="relative aspect-[4/3]">
             <Image
-              src="/img4.webp"
+              src="/antofa.webp"
               alt="Sucursal Antofagasta"
               fill
               sizes="(max-width: 768px) 100vw, 480px"
@@ -54,24 +54,17 @@ export default function AntofagastaPage() {
       <section className="mx-auto w-full max-w-7xl px-6 pb-20 md:px-10 xl:px-12">
         <RevealOnScroll>
         <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_20px_55px_-40px_rgba(15,23,42,0.25)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Incluye</p>
-          <h2 className="mt-4 text-2xl font-light text-slate-900">Servicios destacados</h2>
-          <ul className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-700" />
-              WiFi estable y climatizacion.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-700" />
-              Sala de espera comoda.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-700" />
-              Box listo para terapia individual.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-700" />
-              Apoyo en coordinacion de horarios.
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Box</p>
+          <h2 className="mt-4 text-2xl font-light text-slate-900">Box disponible</h2>
+          <ul className="mt-5 space-y-4 text-sm text-slate-600">
+            <li className="flex items-start gap-3">
+              <span className="mt-2 h-2 w-2 rounded-full bg-emerald-700" />
+              <div>
+                <p className="font-semibold text-slate-900">Box 1</p>
+                <p className="mt-1">
+                  Espacio pensado para terapias individuales y familiares.
+                </p>
+              </div>
             </li>
           </ul>
         </div>

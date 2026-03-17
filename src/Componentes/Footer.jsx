@@ -64,11 +64,11 @@ export default function FooterPremiumMedico() {
                 +56 9 7123 7451
               </a>
               <a
-                href="mailto:contacto@descubrirte.cl"
+                href="mailto:descubrirteterapia@gmail.com"
                 className="inline-flex items-center gap-2 text-xs tracking-[0.12em] text-emerald-900 transition hover:text-emerald-700"
               >
                 <Mail className="h-4 w-4" />
-                contacto@descubrirte.cl
+                descubrirteterapia@gmail.com
               </a>
             </div>
 

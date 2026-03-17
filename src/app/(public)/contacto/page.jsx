@@ -8,28 +8,40 @@ import { Textarea } from "@/components/ui/textarea";
 
 const contactCards = [
   {
-    title: "Ubicación",
-    value: "Providencia, Santiago de Chile",
-    href: null,
-    icon: MapPin,
-  },
-  {
     title: "WhatsApp",
-    value: "+56 9 9483 6980",
-    href: "https://wa.me/56994836980",
+    value: "+56 9 7123 7451",
+    href: "https://wa.me/56971237451",
     icon: MessageCircle,
   },
   {
     title: "Email",
-    value: "contacto@ortegaschmuck.cl",
-    href: "mailto:contacto@ortegaschmuck.cl",
+    value: "descubrirteterapia@gmail.com",
+    href: "mailto:descubrirteterapia@gmail.com",
     icon: Mail,
   },
   {
     title: "Instagram",
-    value: "@ortegaschmuck.cl",
-    href: "https://www.instagram.com/ortegaschmuck.cl",
+    value: "@espacio.descubrirte",
+    href: "https://www.instagram.com/espacio.descubrirte",
     icon: Instagram,
+  },
+  {
+    title: "Antofagasta",
+    value: "Av. Angamos 193, 2do piso",
+    href: "https://maps.google.com/?q=Av.%20Angamos%20193%2C%20Antofagasta%2C%20Chile",
+    icon: MapPin,
+  },
+  {
+    title: "Providencia - Los Leones",
+    value: "Lota 2257, a pasos de estacion Los Leones",
+    href: "https://maps.google.com/?q=Lota%202257%2C%20Providencia%2C%20Santiago%2C%20Chile",
+    icon: MapPin,
+  },
+  {
+    title: "Providencia - Pedro de Valdivia",
+    value: "Av. Nueva Providencia 1860, frente a estacion Pedro de Valdivia",
+    href: "https://maps.google.com/?q=Avenida%20Nueva%20Providencia%201860%2C%20Providencia%2C%20Santiago%2C%20Chile",
+    icon: MapPin,
   },
 ];
 
@@ -87,15 +99,14 @@ export default function ContactoPage() {
               Contacto
             </p>
             <h1 className="mt-4 text-4xl leading-[1.02] text-slate-900 sm:text-5xl">
-              Agenda tu evaluación con atención personalizada.
+              Coordina tu box con nuestro equipo.
             </h1>
             <p className="mt-6 max-w-xl text-sm leading-relaxed text-slate-600 sm:text-base">
-              Escríbenos y te ayudaremos a resolver tus dudas sobre procedimientos,
-              evaluación inicial y tiempos estimados.
+              Escribenos y te ayudaremos a resolver dudas sobre sedes, boxes y
+              disponibilidad para tus sesiones.
             </p>
             <p className="mt-3 max-w-xl text-xs leading-relaxed text-slate-500 sm:text-sm">
-              Para resguardar privacidad, la dirección exacta se entrega solo al confirmar
-              la evaluación.
+              Tambien puedes contactarnos por WhatsApp o Instagram para una respuesta rapida.
             </p>
 
             <div className="mt-9 grid gap-4 sm:grid-cols-2">
@@ -147,9 +158,8 @@ export default function ContactoPage() {
               <div className="mt-3 flex items-start gap-3 text-sm text-slate-700">
                 <Clock3 className="mt-0.5 h-4 w-4 text-slate-500" />
                 <div className="space-y-1.5">
-                  <p>Lunes a Viernes: 9:00 a 19:00</p>
-                  <p>Sábado: 10:00 a 14:00</p>
-                  <p>Domingo: Cerrado</p>
+                  <p>Antofagasta: Lunes a sabado de 10:00 a 21:00 hrs.</p>
+                  <p>Providencia: Lunes a domingo y festivos de 08:00 a 23:00 hrs.</p>
                 </div>
               </div>
             </div>
@@ -160,11 +170,11 @@ export default function ContactoPage() {
               Formulario de contacto
             </p>
             <h2 className="mt-4 text-3xl leading-tight text-slate-900 sm:text-4xl">
-              Cuéntanos tu caso y te responderemos a la brevedad.
+              Cuentanos tu necesidad y te responderemos a la brevedad.
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-slate-600">
-              Si prefieres, indícanos en tu mensaje si quieres respuesta por WhatsApp o
-              llamada telefónica.
+              Si prefieres, indicanos en tu mensaje si quieres respuesta por WhatsApp o
+              llamada telefonica.
             </p>
 
             <form

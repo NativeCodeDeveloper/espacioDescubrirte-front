@@ -3,20 +3,19 @@
 import Link from "next/link";
 import RevealOnScroll from "@/Componentes/RevealOnScroll";
 const serviciosPrincipales = [
-  "Arriendo de boxes para terapia",
-  "Box para adultos",
-  "Box infantil",
-  "Box estandar",
-  "Sala de espera comoda",
-  "Coordinacion y soporte para tu agenda",
+  "Boxes de atencion terapeutica completamente equipados",
+  "Ambientes calidos y profesionales",
+  "Espacios pensados para psicoterapia individual, de pareja y familiar",
+  "Modalidad flexible de arriendo por horas",
+  "Comunidad de profesionales de la salud mental",
 ];
 
 const serviciosAdicionales = [
-  "WiFi estable",
-  "Aire acondicionado",
-  "Calefaccion",
-  "Materiales terapeuticos",
-  "Ambientes silenciosos",
+  "Sala de espera",
+  "Te y cafe disponible para terapeutas y pacientes",
+  "Conexion Wi-Fi gratuita",
+  "Espacios equipados y privados para tus sesiones",
+  "Ambiente acogedor y profesional",
 ];
 
 const RESERVA_HREF = "/agendaProfesionales";
@@ -30,12 +29,15 @@ export default function ServicioPage() {
             Servicios
           </p>
           <h1 className="mt-5 max-w-4xl text-4xl font-light leading-tight sm:text-5xl">
-            Espacios listos para que puedas concentrarte en tus pacientes.
+            Un entorno creado para el encuentro terapeutico.
           </h1>
           <p className="mt-7 max-w-3xl text-base leading-relaxed text-slate-600">
-            En Espacio Descubrirte encuentras boxes equipados y un entorno profesional para
-            psicologos, terapeutas y coaches. Nuestra prioridad es que tu consulta se sienta
-            comoda, tranquila y eficiente.
+            Espacio Descubrirte es un lugar pensado para profesionales de la salud mental que
+            buscan boxes completamente equipados y un ambiente calido, profesional y
+            cuidadosamente disenado para la atencion clinica.
+            Nuestro proposito es facilitar el acceso a espacios de atencion de calidad para
+            que puedas enfocarte en lo mas importante: el proceso terapeutico y el bienestar
+            de las personas.
           </p>
         </RevealOnScroll>
       </section>
@@ -44,9 +46,9 @@ export default function ServicioPage() {
         <RevealOnScroll className="w-full">
           <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_20px_55px_-40px_rgba(15,23,42,0.25)]">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-            Servicios principales
+            Que ofrecemos
           </p>
-          <h2 className="mt-4 text-2xl font-light text-slate-900">Todo lo esencial</h2>
+          <h2 className="mt-4 text-2xl font-light text-slate-900">Arriendo pensado para terapia</h2>
           <ul className="mt-5 space-y-3 text-sm text-slate-600">
             {serviciosPrincipales.map((servicio) => (
               <li key={servicio} className="flex items-start gap-2">
@@ -61,9 +63,9 @@ export default function ServicioPage() {
         <RevealOnScroll className="w-full" delayClass="delay-150">
           <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_20px_55px_-40px_rgba(15,23,42,0.25)]">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-            Servicios adicionales
+            Nuestras sucursales incluyen
           </p>
-          <h2 className="mt-4 text-2xl font-light text-slate-900">Comodidad extra</h2>
+          <h2 className="mt-4 text-2xl font-light text-slate-900">Comodidad para cada sesion</h2>
           <ul className="mt-5 space-y-3 text-sm text-slate-600">
             {serviciosAdicionales.map((servicio) => (
               <li key={servicio} className="flex items-start gap-2">

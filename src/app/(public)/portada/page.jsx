@@ -10,27 +10,27 @@ const RESERVA_HREF = "/agendaProfesionales";
 const defaultHeroSlides = [
   {
     id: "hero-1",
-    image: "/imgportdada.webp",
+    image: "/lota2.webp",
     alt: "Box profesional para terapia",
     badge: "Espacio Descubrirte",
-    title: "Arriendo de boxes para psicologos y terapeutas.",
-    text: "Ambientes equipados, silenciosos y listos para atender a tus pacientes desde el primer dia.",
+    title: "Arriendo de boxes de atencion terapeutica.",
+    text: "Un entorno calido y profesional para psicologos y terapeutas, listo para cuidar el proceso terapeutico.",
   },
   {
     id: "hero-2",
-    image: "/img2.webp",
+    image: "/lota1.webp",
     alt: "Sala de espera moderna",
-    badge: "Flexibilidad total",
-    title: "Reserva por horas o jornadas completas.",
-    text: "Elige el box que se ajusta a tu practica y coordina disponibilidad en minutos.",
+    badge: "Que ofrecemos",
+    title: "Boxes equipados con flexibilidad por horas.",
+    text: "Espacios pensados para psicoterapia individual, de pareja y familiar, con privacidad y comodidad.",
   },
   {
     id: "hero-3",
-    image: "/img3.webp",
+    image: "/lota3.webp",
     alt: "Espacio de terapia iluminado",
-    badge: "Ubicaciones estrategicas",
-    title: "Sucursales en Providencia y Antofagasta.",
-    text: "Cercania, accesos rapidos y ambientes profesionales en cada sede.",
+    badge: "Sucursales",
+    title: "Providencia y Antofagasta, accesibles y acogedoras.",
+    text: "Sedes con sala de espera, te y cafe, Wi-Fi gratuita y espacios privados para tus sesiones.",
   },
 ];
 
@@ -118,7 +118,7 @@ export default function Portada({ slides = defaultHeroSlides }) {
                     fill
                     priority={index === 0}
                     sizes="(max-width: 768px) 100vw, 1200px"
-                    className="object-container"
+                    className="object-container w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(15,23,42,0.7)_0%,rgba(15,23,42,0.35)_45%,rgba(15,23,42,0.2)_100%)]" />
 

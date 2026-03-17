@@ -18,8 +18,8 @@ export default function NuevaProvidenciaPage() {
             Nueva Providencia 1860, Providencia, Santiago
           </p>
           <p className="mt-6 text-sm leading-7 text-slate-600">
-            Boxes modernos con excelente conectividad y accesos rapidos. Un entorno pensado
-            para sesiones continuas y una experiencia profesional de alto nivel.
+            Ubicacion estrategica, justo frente a la salida de estacion Pedro de Valdivia.
+            Un entorno comodo y profesional para sesiones continuas.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -40,7 +40,7 @@ export default function NuevaProvidenciaPage() {
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_24px_60px_-40px_rgba(15,23,42,0.25)]">
           <div className="relative aspect-[4/3]">
             <Image
-              src="/img3.webp"
+              src="/pvaldivia.webp"
               alt="Sucursal Nueva Providencia"
               fill
               sizes="(max-width: 768px) 100vw, 480px"
@@ -54,24 +54,38 @@ export default function NuevaProvidenciaPage() {
       <section className="mx-auto w-full max-w-7xl px-6 pb-20 md:px-10 xl:px-12">
         <RevealOnScroll>
         <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-[0_20px_55px_-40px_rgba(15,23,42,0.25)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Incluye</p>
-          <h2 className="mt-4 text-2xl font-light text-slate-900">Servicios destacados</h2>
-          <ul className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-700" />
-              Sala de espera comoda.
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Boxes</p>
+          <h2 className="mt-4 text-2xl font-light text-slate-900">Boxes disponibles</h2>
+          <ul className="mt-5 space-y-4 text-sm text-slate-600">
+            <li className="flex items-start gap-3">
+              <span className="mt-2 h-2 w-2 rounded-full bg-emerald-700" />
+              <div>
+                <p className="font-semibold text-slate-900">Box 1</p>
+                <p className="mt-1">
+                  Espacio intimo y acogedor, disenado con enfoque en la comodidad y
+                  privacidad para sesiones mas intimas.
+                </p>
+              </div>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-700" />
-              WiFi estable y climatizacion.
+            <li className="flex items-start gap-3">
+              <span className="mt-2 h-2 w-2 rounded-full bg-emerald-700" />
+              <div>
+                <p className="font-semibold text-slate-900">Box 2</p>
+                <p className="mt-1">
+                  Espacio equipado con escritorio y pizarra, ideal para terapias mas
+                  didacticas, con excelente iluminacion natural y sillones comodos.
+                </p>
+              </div>
             </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-700" />
-              Boxes listos para terapia individual.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-2 w-2 rounded-full bg-emerald-700" />
-              Apoyo en coordinacion de horarios.
+            <li className="flex items-start gap-3">
+              <span className="mt-2 h-2 w-2 rounded-full bg-emerald-700" />
+              <div>
+                <p className="font-semibold text-slate-900">Box 3</p>
+                <p className="mt-1">
+                  Consulta equipada con escritorio, pensada para que terapeuta y paciente se
+                  sientan comodos y se favorezca un clima de confianza.
+                </p>
+              </div>
             </li>
           </ul>
         </div>

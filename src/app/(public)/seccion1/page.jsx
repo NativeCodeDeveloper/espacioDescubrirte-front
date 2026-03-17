@@ -7,24 +7,24 @@ const branches = [
     name: "Providencia - Lota 2257",
     address: "Lota 2257, Providencia, Santiago",
     description:
-      "Boxes luminosos y silenciosos, ideales para terapia individual y sesiones prolongadas.",
-    image: "/img2.webp",
+      "Sucursal Los Leones, a pasos de estacion Los Leones, con 2 estacionamientos gratuitos sujetos a disponibilidad.",
+    image: "/lota1.webp",
     href: "/sucursales/providencia-lota",
   },
   {
     name: "Providencia - Nueva Providencia 1860",
     address: "Nueva Providencia 1860, Providencia, Santiago",
     description:
-      "Espacios modernos con sala de espera confortable y excelente conectividad.",
-    image: "/img3.webp",
+      "Ubicacion estrategica, justo frente a la salida de estacion Pedro de Valdivia.",
+    image: "/pvaldivia.webp",
     href: "/sucursales/nueva-providencia",
   },
   {
     name: "Antofagasta - Angamos 193",
     address: "Av. Angamos 193, Antofagasta",
     description:
-      "Ambiente profesional y climatizado para una atencion tranquila y enfocada.",
-    image: "/img4.webp",
+      "Sucursal Angamos en segundo piso, con box pensado para terapias individuales y familiares.",
+    image: "/antofa.webp",
     href: "/sucursales/antofagasta",
   },
 ];

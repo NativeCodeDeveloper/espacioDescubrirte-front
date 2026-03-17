@@ -5,10 +5,11 @@ export default function PortadaCelulares() {
     <div className="block md:hidden min-h-screen bg-[#0a1628] flex items-center justify-center">
       <div className="text-center px-6">
         <h1 className="text-4xl font-bold text-white tracking-tight">
-          PORTADA
+          Espacio Descubrirte
         </h1>
         <p className="mt-5 text-base text-gray-300 max-w-md mx-auto leading-relaxed">
-          Transformamos tu piel con tecnología de última generación. Descubre una experiencia única diseñada para ti.
+          Arriendo de boxes de atencion terapeutica en un ambiente calido, profesional y
+          cuidadosamente disenado para la salud mental.
         </p>
       </div>
     </div>

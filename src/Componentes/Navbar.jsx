@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown } from "lucide-react";
 
 const navItems = [
-  { label: "Inicio", href: "/#inicio" },
+  { label: "", href: "/#inicio" },
   { label: "Por que elegirnos", href: "/#por-que-elegirnos" },
   { label: "Servicios", href: "/servicios" },
 ];
@@ -18,7 +18,7 @@ const branchItems = [
     href: "/sucursales/providencia-lota",
   },
   {
-    label: "AV. Nueva Providencia",
+    label: "Pedro de Valdivia",
     href: "/sucursales/nueva-providencia",
   },
   {
