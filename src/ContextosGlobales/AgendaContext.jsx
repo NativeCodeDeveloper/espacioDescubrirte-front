@@ -23,7 +23,6 @@ export default function AgendaProvider({children}) {
 
     const agregarHora = (slot) => {
         setHorasSeleccionadas(prev => {
-            if (prev.length >= 4) return prev;
             // evitar duplicados
             const existe = prev.some(s => s.fecha === slot.fecha && s.horaInicio === slot.horaInicio);
             if (existe) return prev;

@@ -226,11 +226,7 @@ export default function CalendarioMensualHoras() {
             }
         }
 
-        // Verificar límite semanal
-        if (horasSeleccionadas.length >= 4) {
-            toast.error("Máximo 4 horas por semana", { duration: 3000 });
-            return;
-        }
+        // Sin límite estricto de horas por semana
 
         // Verificar misma semana
         if (horasSeleccionadas.length > 0) {
@@ -375,7 +371,7 @@ export default function CalendarioMensualHoras() {
                     </h1>
 
                     <p className="max-w-md text-sm leading-6 text-slate-500">
-                        Selecciona fecha y hasta 4 bloques horarios por semana.
+                        Selecciona fecha y los bloques horarios que necesites por semana.
                     </p>
                 </header>
 
@@ -471,7 +467,7 @@ export default function CalendarioMensualHoras() {
                                 Semana: {formatWeekRange(activaWeekBounds.lunes, activaWeekBounds.sabado)}
                             </span>
                             <span className="text-xs font-semibold text-green-800">
-                                {horasSeleccionadas.length}/4 horas seleccionadas
+                                {horasSeleccionadas.length} {horasSeleccionadas.length === 1 ? 'hora seleccionada' : 'horas seleccionadas'}
                             </span>
                         </div>
                     )}
@@ -537,14 +533,11 @@ export default function CalendarioMensualHoras() {
                                                 <div className="flex items-center gap-3">
                                                     <button
                                                         onClick={() => toggleSlot(entry.start)}
-                                                        disabled={!selected && horasSeleccionadas.length >= 4}
                                                         className={
                                                             "px-3 py-1 rounded-lg font-semibold shadow-sm transition active:scale-[0.98] " +
                                                             (selected
                                                                 ? 'bg-green-600 text-white shadow-md hover:bg-red-500'
-                                                                : horasSeleccionadas.length >= 4
-                                                                    ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                                                                    : 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-md hover:shadow-slate-900/5')
+                                                                : 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-md hover:shadow-slate-900/5')
                                                         }
                                                     >
                                                         {selected ? 'Quitar' : 'Seleccionar'}
@@ -585,7 +578,7 @@ export default function CalendarioMensualHoras() {
                     {/* Panel resumen de selecciones */}
                     {horasSeleccionadas.length > 0 && (
                         <div className="mt-5">
-                            <h3 className="text-sm font-semibold text-slate-800 mb-2">Horas seleccionadas ({horasSeleccionadas.length}/4)</h3>
+                            <h3 className="text-sm font-semibold text-slate-800 mb-2">Horas seleccionadas ({horasSeleccionadas.length})</h3>
                             <div className="space-y-2 rounded-xl border border-green-200 bg-green-50/50 p-3">
                                 {horasSeleccionadas.map((sel, idx) => {
                                     const fechaDate = new Date(sel.fecha + "T12:00:00");
@@ -644,8 +637,13 @@ export default function CalendarioMensualHoras() {
                         Sucursales adaptadas y personalizada para que tus pacientes se sientan en casa.
                     </p>
                     <p className="mt-2 text-[11px] text-slate-400">
-                        Horarios: Lun-Sáb 9:00-22:00 | Dom Cerrado | Máx. 4 horas/semana
+                        Horarios: Lun-Sáb 9:00-22:00 | Dom Cerrado
                     </p>
+                    <div className="mt-3 flex flex-wrap justify-center gap-2 text-[10px] text-slate-500">
+                        <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1">1-3 hrs: $7.000/hr</span>
+                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-emerald-700">4 hrs: $6.000/hr</span>
+                        <span className="rounded-full border border-emerald-300 bg-emerald-100 px-2.5 py-1 text-emerald-800 font-medium">5+ hrs: $5.500/hr</span>
+                    </div>
                 </footer>
             </div>
         </div>

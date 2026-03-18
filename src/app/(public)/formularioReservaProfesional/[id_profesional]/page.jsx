@@ -27,6 +27,33 @@ export default function FormularioReservaProfesional() {
     const [totalPago, setTotalPago] = useState("");
     const router = useRouter();
 
+    // --- Lógica de precios por hora con descuento ---
+    // El precio base viene de la tarifa del servicio seleccionado
+    const precioBaseTarifa = tarifaSeleccionadaIndex !== "" && listaTarifasProfesionales[tarifaSeleccionadaIndex]
+        ? Number(listaTarifasProfesionales[tarifaSeleccionadaIndex].precio)
+        : 0;
+
+    function calcularPrecioHora(cantidadHoras, precioBase) {
+        if (!precioBase) return 0;
+        if (cantidadHoras >= 5) return Math.round(precioBase * 5500 / 7000);
+        if (cantidadHoras === 4) return Math.round(precioBase * 6000 / 7000);
+        return precioBase;
+    }
+
+    function getNombrePlan(cantidadHoras) {
+        if (cantidadHoras >= 5) return "Plan Flexible";
+        if (cantidadHoras === 4) return "Bloque Semanal";
+        return "Horas Sueltas";
+    }
+
+    const cantidadHoras = horasSeleccionadas.length;
+    const precioHora = calcularPrecioHora(cantidadHoras, precioBaseTarifa);
+    const descuentoPorcentaje = precioBaseTarifa > 0 && cantidadHoras > 0
+        ? Math.round(((precioBaseTarifa - precioHora) / precioBaseTarifa) * 100)
+        : 0;
+    const totalCalculado = cantidadHoras * precioHora;
+    const nombrePlan = getNombrePlan(cantidadHoras);
+
     async function seleccionarProfesionalDatos(id_profesional) {
         try {
             const res = await fetch(`${API}/profesionales/seleccionarProfesional`, {
@@ -72,9 +99,10 @@ export default function FormularioReservaProfesional() {
             }else{
 
                 const respustaBackend = await res.json();
-                if(respustaBackend){
+                if(respustaBackend && respustaBackend.length > 0){
                     setListaTarifasProfesionales(respustaBackend);
-
+                    setTarifaSeleccionadaIndex(0);
+                    setServicioSeleccionado(respustaBackend[0].nombreServicio);
                 }else{
                     return toast.error('Error al cargar los Tarifas y Servicios Profesionales, por favor intente nuevamente .');
                 }
@@ -90,6 +118,15 @@ export default function FormularioReservaProfesional() {
         seleccionarProfesionalDatos(id_profesional)
     }, [id_profesional]);
 
+    // Actualizar totalPago automáticamente cuando cambian las horas o la tarifa
+    useEffect(() => {
+        if (cantidadHoras > 0 && precioBaseTarifa > 0) {
+            setTotalPago(totalCalculado);
+        } else {
+            setTotalPago("");
+        }
+    }, [cantidadHoras, totalCalculado, precioBaseTarifa]);
+
 
     async function pagarMercadoPago() {
         try {
@@ -101,8 +138,12 @@ export default function FormularioReservaProfesional() {
                 return toast.error("Debe seleccionar al menos una hora para realizar la reserva")
             }
 
+            if (!servicioSeleccionado) {
+                return toast.error("Debe seleccionar un motivo de consulta para realizar la reserva")
+            }
+
             if (totalPago <= 0) {
-                return toast.error("Debe seleccionar un servicio para realizar la reserva")
+                return toast.error("El monto a pagar no es válido, seleccione un servicio y horas")
             }
 
             const res = await fetch(`${API}/pagosMercadoPago/create-order`, {
@@ -204,14 +245,13 @@ export default function FormularioReservaProfesional() {
                                     setTarifaSeleccionadaIndex(index);
                                     const tarifa = listaTarifasProfesionales[index];
                                     if (tarifa) {
-                                        setTotalPago(tarifa.precio);
                                         setServicioSeleccionado(tarifa.nombreServicio);
                                     }
                                 }}
                                 placeholder="Seleccione un servicio"
                                 options={listaTarifasProfesionales.map((tarifa, index) => ({
                                     value: index,
-                                    label: `${tarifa.nombreServicio} - ${formatoCLP.format(tarifa.precio)}`
+                                    label: tarifa.nombreServicio
                                 }))}
                                 className={tarifaSeleccionadaIndex !== "" ? "border-emerald-400 bg-emerald-50/50 font-medium text-slate-900" : ""}
                             />
@@ -299,15 +339,63 @@ export default function FormularioReservaProfesional() {
                                     );
                                 })}
 
-                                {totalPago && (
-                                    <div className="mt-3 border-t border-slate-200 pt-3">
+                                {cantidadHoras > 0 && precioBaseTarifa > 0 && (
+                                    <div className="mt-3 border-t border-slate-200 pt-3 space-y-2">
+                                        {/* Nombre del plan */}
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-xs font-bold text-white">
+                                                {cantidadHoras >= 5 ? "⏳" : cantidadHoras === 4 ? "📅" : "💼"}
+                                            </div>
+                                            <div>
+                                                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Plan aplicado</p>
+                                                <p className="text-sm font-semibold text-slate-800">{nombrePlan}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Precio por hora */}
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-200 text-xs font-bold text-slate-600">/hr</div>
+                                            <div className="flex items-center gap-2">
+                                                <div>
+                                                    <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Precio por hora</p>
+                                                    <p className="text-sm font-semibold text-slate-700">{formatoCLP.format(precioHora)}</p>
+                                                </div>
+                                                {descuentoPorcentaje > 0 && (
+                                                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                                                        -{descuentoPorcentaje}% dto.
+                                                    </span>
+                                                )}
+                                                {descuentoPorcentaje > 0 && (
+                                                    <span className="text-xs text-slate-400 line-through">{formatoCLP.format(precioBaseTarifa)}</span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Total */}
                                         <div className="flex items-center gap-3">
                                             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-xs font-bold text-white">$</div>
                                             <div>
-                                                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Valor consulta</p>
-                                                <p className="text-sm font-bold text-emerald-700">{formatoCLP.format(totalPago)}</p>
+                                                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                                                    Total ({cantidadHoras} {cantidadHoras === 1 ? 'hora' : 'horas'} × {formatoCLP.format(precioHora)})
+                                                </p>
+                                                <p className="text-lg font-bold text-emerald-700">{formatoCLP.format(totalCalculado)}</p>
                                             </div>
                                         </div>
+
+                                        {/* Ahorro */}
+                                        {descuentoPorcentaje > 0 && (
+                                            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center">
+                                                <p className="text-xs font-medium text-emerald-700">
+                                                    Ahorras {formatoCLP.format((precioBaseTarifa - precioHora) * cantidadHoras)} esta semana
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {cantidadHoras > 0 && precioBaseTarifa === 0 && (
+                                    <div className="mt-3 border-t border-slate-200 pt-3">
+                                        <p className="text-xs text-amber-600 font-medium">Selecciona un motivo de consulta para ver el precio.</p>
                                     </div>
                                 )}
                             </div>
