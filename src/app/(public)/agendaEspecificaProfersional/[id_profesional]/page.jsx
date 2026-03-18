@@ -14,12 +14,36 @@ function formatDateToYMD(date) {
     return `${y}-${m}-${d}`;
 }
 
+// Dado un Date, retorna { lunes, sabado } como Date de esa semana (Lun-Sáb)
+function getWeekBounds(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const dayOfWeek = d.getDay(); // 0=dom, 1=lun ... 6=sáb
+    // Si es domingo (0), pertenece a la semana anterior (lun-sáb previo)
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const lunes = new Date(d);
+    lunes.setDate(d.getDate() + diffToMonday);
+    const sabado = new Date(lunes);
+    sabado.setDate(lunes.getDate() + 5);
+    return { lunes, sabado };
+}
+
+function isSameWeek(dateA, dateB) {
+    const wA = getWeekBounds(dateA);
+    const wB = getWeekBounds(dateB);
+    return wA.lunes.getTime() === wB.lunes.getTime();
+}
+
+function formatWeekRange(lunes, sabado) {
+    const opts = { day: 'numeric', month: 'short' };
+    return `Lun ${lunes.toLocaleDateString('es-CL', opts)} - Sáb ${sabado.toLocaleDateString('es-CL', opts)}`;
+}
+
 export default function CalendarioMensualHoras() {
     const { id_profesional } = useParams();
     const [nombreProfesional, setNombreProfesional] = useState("");
     const [mesActual, setMesActual] = useState(new Date());
     const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
-    // Ref para evitar que resultados asíncronos antiguos sobrescriban acciones manuales recientes
     const lastManualUpdateRef = useRef(0);
     const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -52,7 +76,11 @@ export default function CalendarioMensualHoras() {
         horaInicio, setHoraInicio,
         setHoraFin,
         setFechaInicio,
-        setFechaFinalizacion
+        setFechaFinalizacion,
+        horasSeleccionadas,
+        agregarHora,
+        eliminarHora,
+        limpiarHoras,
     } = useAgenda();
 
 
@@ -69,21 +97,14 @@ export default function CalendarioMensualHoras() {
         return dias;
     };
 
-    // Genera los bloques de atención (60 min) según el día de la semana
-    // Lunes a Sábado: 09:00 - 22:00
-    // Domingo: No disponible
-    // Los inicios van separados por 70 minutos (60 atención + 10 descanso), pero los descansos no se muestran.
     const attentionSlots = useMemo(() => {
         if (!fechaSeleccionada) return [];
 
-        const dayOfWeek = fechaSeleccionada.getDay(); // 0=domingo, 6=sábado
-
-        // Domingo no tiene horarios
+        const dayOfWeek = fechaSeleccionada.getDay();
         if (dayOfWeek === 0) return [];
 
         const slots = [];
-        const startMinutes = 9 * 60; // 09:00
-        // Lunes a Sábado hasta 22:00
+        const startMinutes = 9 * 60;
         const endMinutes = 22 * 60;
         let cursor = startMinutes;
 
@@ -97,7 +118,6 @@ export default function CalendarioMensualHoras() {
             const attStart = cursor;
             const attEnd = cursor + 60;
             slots.push({ start: minutesToHHMM(attStart), end: minutesToHHMM(attEnd) });
-            // avanzar 60 + 10 minutos (=70) para el siguiente inicio
             cursor = attEnd + 10;
         }
 
@@ -117,6 +137,25 @@ export default function CalendarioMensualHoras() {
         return (hh * 60) + mm;
     };
 
+    // Verificar si un slot ya está seleccionado en horasSeleccionadas
+    const isSlotSelected = (fecha, horaStart) => {
+        const fechaYMD = formatDateToYMD(fecha);
+        return horasSeleccionadas.some(s => s.fecha === fechaYMD && s.horaInicio === horaStart);
+    };
+
+    // Verificar si un día tiene slots seleccionados
+    const dayHasSelections = (dia) => {
+        const fechaYMD = formatDateToYMD(dia);
+        return horasSeleccionadas.some(s => s.fecha === fechaYMD);
+    };
+
+    // Semana activa (basada en la primera selección)
+    const activaWeekBounds = useMemo(() => {
+        if (horasSeleccionadas.length === 0) return null;
+        const firstDate = new Date(horasSeleccionadas[0].fecha + "T12:00:00");
+        return getWeekBounds(firstDate);
+    }, [horasSeleccionadas]);
+
     /* ---------- handlers ---------- */
     const seleccionarFecha = (fecha) => {
         const today = new Date();
@@ -129,7 +168,6 @@ export default function CalendarioMensualHoras() {
             return;
         }
 
-        // Validar que no sea domingo
         const dayOfWeek = fecha.getDay();
         if (dayOfWeek === 0) {
             toast.error("Las atenciones son de Lunes a Sábado.\nLun-Sáb: 9:00-22:00", {
@@ -143,104 +181,83 @@ export default function CalendarioMensualHoras() {
             return;
         }
 
+        // Si hay selecciones previas, verificar que sea la misma semana
+        if (horasSeleccionadas.length > 0) {
+            const firstDate = new Date(horasSeleccionadas[0].fecha + "T12:00:00");
+            if (!isSameWeek(fecha, firstDate)) {
+                limpiarHoras();
+                toast("Se limpiaron las selecciones previas (semana diferente)", {
+                    icon: "ℹ️",
+                    duration: 3000,
+                });
+            }
+        }
+
         setFechaSeleccionada(fecha);
+    };
 
-        const fechaYMD = formatDateToYMD(fecha);
+    const toggleSlot = (hora) => {
+        if (!fechaSeleccionada) return;
 
-        // Si ya hay hora seleccionada, mantenla y recalcula las cadenas en el contexto
-        if (horaInicio) {
-            const horaFinAuto = addMinutesToHHMM(horaInicio, 60);
-            setHoraFin(horaFinAuto);
-            setFechaInicio(fechaYMD);
-            setFechaFinalizacion(fechaYMD);
+        const fechaYMD = formatDateToYMD(fechaSeleccionada);
+
+        // Si ya está seleccionado, deseleccionar
+        const existingIndex = horasSeleccionadas.findIndex(
+            s => s.fecha === fechaYMD && s.horaInicio === hora
+        );
+        if (existingIndex !== -1) {
+            eliminarHora(existingIndex);
             return;
         }
 
-        // Si aún no hay hora, solo dejamos la fecha lista (fechaInicio vacía hasta elegir hora)
-        setHoraFin("");
-        setFechaInicio("");
-        setFechaFinalizacion("");
-    };
-
-    const seleccionarInicio = (hora) => {
         // Bloquear horas pasadas si la fecha seleccionada es hoy
-        if (fechaSeleccionada) {
-            const today = new Date();
-            const day = new Date(fechaSeleccionada);
-            today.setHours(0, 0, 0, 0);
-            day.setHours(0, 0, 0, 0);
+        const today = new Date();
+        const day = new Date(fechaSeleccionada);
+        today.setHours(0, 0, 0, 0);
+        day.setHours(0, 0, 0, 0);
+        const isToday = day.getTime() === today.getTime();
+        if (isToday) {
+            const now = new Date();
+            const nowMinutes = (now.getHours() * 60) + now.getMinutes();
+            const slotStartMinutes = hhmmToMinutes(hora);
+            if (slotStartMinutes < nowMinutes) {
+                toast.error("No puedes agendar una hora que ya pasó");
+                return;
+            }
+        }
 
-            const isToday = day.getTime() === today.getTime();
-            if (isToday) {
-                const now = new Date();
-                const nowMinutes = (now.getHours() * 60) + now.getMinutes();
-                const slotStartMinutes = hhmmToMinutes(hora);
+        // Verificar límite semanal
+        if (horasSeleccionadas.length >= 4) {
+            toast.error("Máximo 4 horas por semana", { duration: 3000 });
+            return;
+        }
 
-                // Si el bloque ya empezó, no permitir agendar
-                if (slotStartMinutes < nowMinutes) {
-                    toast.error("No puedes agendar una hora que ya pasó");
-                    return;
-                }
+        // Verificar misma semana
+        if (horasSeleccionadas.length > 0) {
+            const firstDate = new Date(horasSeleccionadas[0].fecha + "T12:00:00");
+            if (!isSameWeek(fechaSeleccionada, firstDate)) {
+                limpiarHoras();
+                toast("Se limpiaron las selecciones previas (semana diferente)", {
+                    icon: "ℹ️",
+                    duration: 3000,
+                });
             }
         }
 
         const horaFinAuto = addMinutesToHHMM(hora, 60);
+        agregarHora({ fecha: fechaYMD, horaInicio: hora, horaFin: horaFinAuto });
 
-        setHoraInicio(hora);
-        setHoraFin(horaFinAuto);
-
-        // Guardamos las strings en el contexto: fechaYYYY-MM-DD y hora HH:MM
-        if (fechaSeleccionada) {
-            const fechaYMD = formatDateToYMD(fechaSeleccionada);
-            setFechaInicio(fechaYMD);
-            setFechaFinalizacion(fechaYMD);
-
-            // Marcar acción manual para que cualquier checkBlocked en curso no sobreescriba cambios
-            lastManualUpdateRef.current = Date.now();
-
-            // Revalidar slots adyacentes para evitar que la selección haga que los vecinos aparezcan bloqueados
-            (async () => {
-                try {
-                    const idx = attentionSlots.findIndex(s => s.start === hora);
-                    if (idx === -1) return;
-
-                    const neighbors = [];
-                    if (idx - 1 >= 0) neighbors.push(attentionSlots[idx - 1]);
-                    if (idx + 1 < attentionSlots.length) neighbors.push(attentionSlots[idx + 1]);
-
-                    for (const n of neighbors) {
-                        const res = await validarFechaDisponible(formatDateToYMD(fechaSeleccionada), n.start, formatDateToYMD(fechaSeleccionada), n.end, false, id_profesional);
-                        // res is object {available, ...}
-                        if (res && res.available) {
-                            setBlockedHours(prev => {
-                                if (!prev.has(n.start)) return prev;
-                                const copy = new Set(prev);
-                                copy.delete(n.start);
-                                // actualizar resumen también
-                                setCheckSummary({ blocked: copy.size, total: attentionSlots.length });
-                                return copy;
-                            });
-                        }
-                    }
-                } catch (err) {
-                    console.error('Error revalidando vecinos:', err);
-                }
-            })();
-        }
+        lastManualUpdateRef.current = Date.now();
     };
 
     const dias = generarDiasMes();
-
 
     const [blockedHours, setBlockedHours] = useState(new Set());
     const [checkingBlocked, setCheckingBlocked] = useState(false);
     const [checkSummary, setCheckSummary] = useState({ blocked: 0, total: 0 });
 
-    // Comprueba si un slot está disponible. Devuelve true si está disponible, false si está ocupado.
-    // showToast: opcional, si true mostrará mensajes de error al usuario.
     async function validarFechaDisponible(fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, showToast = false, id_profesional) {
         try {
-            // validación mínima de parámetros
             if (!fechaInicio || !fechaFinalizacion || !horaInicio || !horaFinalizacion) {
                 if (showToast) toast.error('Debe seleccionar fecha y hora para validar disponibilidad');
                 return false;
@@ -264,33 +281,15 @@ export default function CalendarioMensualHoras() {
 
             const status = res.status;
 
-            // Logging para depuración
-            console.debug('validarFechaDisponible ->', {
-                fechaInicio,
-                horaInicio,
-                fechaFinalizacion,
-                horaFinalizacion,
-                status,
-                body: respuestaBackend
-            });
-
-            // Determinar disponibilidad
             if (respuestaBackend && respuestaBackend.message === true) return {
-                available: true,
-                status,
-                body: respuestaBackend,
-                error: false
+                available: true, status, body: respuestaBackend, error: false
             };
             if (respuestaBackend && respuestaBackend.message === false) return {
-                available: false,
-                status,
-                body: respuestaBackend,
-                error: false
+                available: false, status, body: respuestaBackend, error: false
             };
 
             if (res.ok) return { available: true, status, body: respuestaBackend, error: false };
 
-            // status no OK y sin body
             if (!res.ok) {
                 if (showToast) toast.error('No hay respuesta válida del servidor');
                 return { available: false, status, body: respuestaBackend, error: false };
@@ -302,7 +301,6 @@ export default function CalendarioMensualHoras() {
         }
     }
 
-    // Cuando el usuario selecciona una fecha, comprobamos en paralelo los slots y guardamos los bloqueados
     useEffect(() => {
         let mounted = true;
         const checkStart = Date.now();
@@ -317,9 +315,8 @@ export default function CalendarioMensualHoras() {
             const fechaYMD = formatDateToYMD(fechaSeleccionada);
 
             try {
-                // paralelizamos las comprobaciones por batches para limitar concurrencia
-                const attentionEntries = attentionSlots; // ahora es la lista de atenciones (sin descansos)
-                const limit = 6; // máximo requests simultáneos
+                const attentionEntries = attentionSlots;
+                const limit = 6;
                 const checks = [];
 
                 for (let i = 0; i < attentionEntries.length; i += limit) {
@@ -328,40 +325,29 @@ export default function CalendarioMensualHoras() {
                         const result = await validarFechaDisponible(fechaYMD, entry.start, fechaYMD, entry.end, false, id_profesional);
                         return { h: entry.start, ...result };
                     }));
-
                     checks.push(...batchResults);
                 }
 
                 if (!mounted) return;
 
                 const blocked = new Set(checks.filter(c => c.available === false).map(c => c.h));
-                // Si hubo una actualización manual después de que este check comenzó, NO aplicamos su resultado
 
                 if (lastManualUpdateRef.current > checkStart) {
-                    console.debug('checkBlocked result skipped because of manual update', {
-                        skippedAt: lastManualUpdateRef.current,
-                        checkStart
-                    });
-
+                    console.debug('checkBlocked result skipped because of manual update');
                 } else {
                     setBlockedHours(blocked);
-                    // actualizar resumen para debug en UI
                     setCheckSummary({ blocked: blocked.size, total: attentionEntries.length });
                 }
-                console.debug('checkBlocked ->', { total: attentionEntries.length, blocked: blocked.size, raw: checks });
 
+                // Si alguna hora seleccionada quedó bloqueada, eliminarla
+                horasSeleccionadas.forEach((sel, idx) => {
+                    if (sel.fecha === fechaYMD && blocked.has(sel.horaInicio)) {
+                        eliminarHora(idx);
+                        toast.error(`La hora ${sel.horaInicio} ya no está disponible`);
+                    }
+                });
 
-
-                // si la hora actualmente seleccionada quedó bloqueada, limpiarla
-                if (horaInicio && blocked.has(horaInicio)) {
-                    setHoraInicio("");
-                    setHoraFin("");
-                    setFechaInicio("");
-                    setFechaFinalizacion("");
-                    toast.error('La hora seleccionada ya no está disponible');
-                }
             } catch (e) {
-                // Si hay fallo general, vaciamos bloqueos y no bloqueamos nada por seguridad
                 if (mounted) setBlockedHours(new Set());
             } finally {
                 if (mounted) setCheckingBlocked(false);
@@ -370,12 +356,8 @@ export default function CalendarioMensualHoras() {
 
         checkBlocked();
 
-        return () => {
-            mounted = false;
-        }
+        return () => { mounted = false; }
     }, [fechaSeleccionada, attentionSlots]);
-
-    // Evitar llamadas al backend en cada render; useEffect gestiona comprobaciones.
 
     /* ---------- UI ---------- */
     return (
@@ -387,17 +369,13 @@ export default function CalendarioMensualHoras() {
                         Agenda · Online
                     </div>
 
-                    <h1
-                        className={`text-3xl sm:text-4xl font-black tracking-widest `}
-                    >
-                        <span className="bg-gradient-to-r from-slate-900 via-gray-800 to-slate-700 text-transparent bg-clip-text ">{nombreProfesional || "Cargando..."}</span>
-                        <span
-                            className="relative mt-1 block h-1 w-40 max-w-full rounded-full bg-gradient-to-r from-slate-400 via-slate-200 to-transparent"
-                        />
+                    <h1 className="text-3xl sm:text-4xl font-black tracking-widest">
+                        <span className="bg-gradient-to-r from-slate-900 via-gray-800 to-slate-700 text-transparent bg-clip-text">{nombreProfesional || "Cargando..."}</span>
+                        <span className="relative mt-1 block h-1 w-40 max-w-full rounded-full bg-gradient-to-r from-slate-400 via-slate-200 to-transparent" />
                     </h1>
 
                     <p className="max-w-md text-sm leading-6 text-slate-500">
-                        Selecciona fecha y un bloque horario disponible.
+                        Selecciona fecha y hasta 4 bloques horarios por semana.
                     </p>
                 </header>
 
@@ -415,13 +393,9 @@ export default function CalendarioMensualHoras() {
                             onClick={() => {
                                 setMesActual(new Date(mesActual.setMonth(mesActual.getMonth() - 1)));
                                 setFechaSeleccionada(null);
-                                setHoraInicio("");
-                                setHoraFin("");
-                                setFechaInicio("");
-                                setFechaFinalizacion("");
                             }}
                         >
-                            ←
+                            &larr;
                         </button>
                         <strong className="capitalize text-sm font-semibold text-slate-800">
                             {mesActual.toLocaleString("es-CL", { month: "long", year: "numeric" })}
@@ -431,13 +405,9 @@ export default function CalendarioMensualHoras() {
                             onClick={() => {
                                 setMesActual(new Date(mesActual.setMonth(mesActual.getMonth() + 1)));
                                 setFechaSeleccionada(null);
-                                setHoraInicio("");
-                                setHoraFin("");
-                                setFechaInicio("");
-                                setFechaFinalizacion("");
                             }}
                         >
-                            →
+                            &rarr;
                         </button>
                     </div>
 
@@ -458,6 +428,7 @@ export default function CalendarioMensualHoras() {
                                 const isSunday = dia.getDay() === 0;
                                 const isDisabled = isPastDay || isSunday;
                                 const isSelected = fechaSeleccionada?.toDateString() === dia.toDateString();
+                                const hasSelections = dayHasSelections(dia);
 
                                 return (
                                     <button
@@ -469,15 +440,22 @@ export default function CalendarioMensualHoras() {
                                             seleccionarFecha(dia);
                                         }}
                                         className={
-                                            "h-10 flex items-center justify-center rounded-md text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 " +
+                                            "relative h-10 flex items-center justify-center rounded-md text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 " +
                                             (isDisabled
                                                 ? "cursor-not-allowed border border-slate-200/70 bg-white/60 text-slate-400 shadow-sm" + (isSunday ? " opacity-50" : "")
                                                 : isSelected
                                                     ? "border border-gray-900 bg-gray-900 text-white shadow-md shadow-gray-900/10"
-                                                    : "border border-slate-200 bg-white/90 text-slate-700 shadow-sm hover:bg-white hover:border-gray-400 hover:shadow-md hover:shadow-slate-900/5")
+                                                    : hasSelections
+                                                        ? "border border-green-400 bg-green-50 text-green-800 shadow-sm hover:bg-green-100 hover:shadow-md"
+                                                        : "border border-slate-200 bg-white/90 text-slate-700 shadow-sm hover:bg-white hover:border-gray-400 hover:shadow-md hover:shadow-slate-900/5")
                                         }
                                     >
                                         {dia.getDate()}
+                                        {hasSelections && (
+                                            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-green-500 text-[8px] font-bold text-white">
+                                                {horasSeleccionadas.filter(s => s.fecha === formatDateToYMD(dia)).length}
+                                            </span>
+                                        )}
                                     </button>
                                 );
                             })() : (
@@ -486,12 +464,24 @@ export default function CalendarioMensualHoras() {
                         )}
                     </div>
 
+                    {/* Indicador de semana activa y contador */}
+                    {horasSeleccionadas.length > 0 && activaWeekBounds && (
+                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2">
+                            <span className="text-xs font-medium text-green-700">
+                                Semana: {formatWeekRange(activaWeekBounds.lunes, activaWeekBounds.sabado)}
+                            </span>
+                            <span className="text-xs font-semibold text-green-800">
+                                {horasSeleccionadas.length}/4 horas seleccionadas
+                            </span>
+                        </div>
+                    )}
+
                     {/* Horarios */}
                     {fechaSeleccionada && (
                         <div className="mt-5">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-sm font-semibold text-slate-800">
-                                    Agenda (09:00–22:00)
+                                    Agenda (09:00-22:00)
                                 </h3>
                                 <div className="flex items-center gap-3">
                                     <p className="text-xs text-slate-500">Bloques de 60 min</p>
@@ -532,25 +522,32 @@ export default function CalendarioMensualHoras() {
                                             return slotStartMinutes < nowMinutes;
                                         })();
 
-                                        // Solo mostrar slots que NO estén bloqueados NI sean pasados
                                         return !isBlocked && !isPastHour;
                                     })
-                                    .map((entry, idx) => {
-                                        const selected = horaInicio === entry.start;
+                                    .map((entry) => {
+                                        const selected = isSlotSelected(fechaSeleccionada, entry.start);
 
                                         return (
                                             <div key={entry.start}
                                                 className={"flex items-center justify-between rounded-xl border p-3 shadow-sm hover:shadow-md hover:shadow-slate-900/5 transition " + (selected ? "bg-green-50 border-green-300" : "bg-white/90 border-slate-200")}>
                                                 <div>
                                                     <div className="text-sm font-medium text-slate-800">Atención</div>
-                                                    <div className="text-xs text-slate-500">{entry.start} – {entry.end}</div>
+                                                    <div className="text-xs text-slate-500">{entry.start} - {entry.end}</div>
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     <button
-                                                        onClick={() => seleccionarInicio(entry.start)}
-                                                        className={"px-3 py-1 rounded-lg font-semibold shadow-sm transition active:scale-[0.98] " + (selected ? 'bg-green-600 text-white shadow-md' : 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-md hover:shadow-slate-900/5')}
+                                                        onClick={() => toggleSlot(entry.start)}
+                                                        disabled={!selected && horasSeleccionadas.length >= 4}
+                                                        className={
+                                                            "px-3 py-1 rounded-lg font-semibold shadow-sm transition active:scale-[0.98] " +
+                                                            (selected
+                                                                ? 'bg-green-600 text-white shadow-md hover:bg-red-500'
+                                                                : horasSeleccionadas.length >= 4
+                                                                    ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                                                                    : 'bg-gray-900 text-white hover:bg-gray-800 hover:shadow-md hover:shadow-slate-900/5')
+                                                        }
                                                     >
-                                                        {selected ? 'Seleccionada' : 'Seleccionar'}
+                                                        {selected ? 'Quitar' : 'Seleccionar'}
                                                     </button>
                                                 </div>
                                             </div>
@@ -582,7 +579,44 @@ export default function CalendarioMensualHoras() {
                                         </div>
                                     )}
                             </div>
+                        </div>
+                    )}
 
+                    {/* Panel resumen de selecciones */}
+                    {horasSeleccionadas.length > 0 && (
+                        <div className="mt-5">
+                            <h3 className="text-sm font-semibold text-slate-800 mb-2">Horas seleccionadas ({horasSeleccionadas.length}/4)</h3>
+                            <div className="space-y-2 rounded-xl border border-green-200 bg-green-50/50 p-3">
+                                {horasSeleccionadas.map((sel, idx) => {
+                                    const fechaDate = new Date(sel.fecha + "T12:00:00");
+                                    const diaLabel = fechaDate.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' });
+
+                                    return (
+                                        <div key={`${sel.fecha}-${sel.horaInicio}`}
+                                            className="flex items-center justify-between rounded-lg border border-green-200 bg-white px-3 py-2">
+                                            <div className="flex items-center gap-3">
+                                                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-600 text-[10px] font-bold text-white">
+                                                    {idx + 1}
+                                                </span>
+                                                <div>
+                                                    <span className="text-sm font-medium text-slate-800 capitalize">{diaLabel}</span>
+                                                    <span className="mx-2 text-slate-400">|</span>
+                                                    <span className="text-sm text-slate-600">{sel.horaInicio} - {sel.horaFin}</span>
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => eliminarHora(idx)}
+                                                className="rounded-md p-1 text-red-400 hover:bg-red-50 hover:text-red-600 transition"
+                                                title="Eliminar"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -593,9 +627,16 @@ export default function CalendarioMensualHoras() {
                         <ShadcnButton2 nombre={"RETROCEDER"} />
                     </Link>
 
-
-                    <ShadcnButton2 nombre={"SIGUIENTE"} funcion={() => formularioReservaProfesional(id_profesional)} />
-
+                    <ShadcnButton2
+                        nombre={"SIGUIENTE"}
+                        funcion={() => {
+                            if (horasSeleccionadas.length === 0) {
+                                toast.error("Selecciona al menos 1 hora para continuar");
+                                return;
+                            }
+                            formularioReservaProfesional(id_profesional);
+                        }}
+                    />
                 </div>
 
                 <footer className="mt-10 text-center text-xs text-slate-600">
@@ -603,7 +644,7 @@ export default function CalendarioMensualHoras() {
                         Sucursales adaptadas y personalizada para que tus pacientes se sientan en casa.
                     </p>
                     <p className="mt-2 text-[11px] text-slate-400">
-                        Horarios: Lun-Sáb 9:00-22:00 | Dom Cerrado
+                        Horarios: Lun-Sáb 9:00-22:00 | Dom Cerrado | Máx. 4 horas/semana
                     </p>
                 </footer>
             </div>

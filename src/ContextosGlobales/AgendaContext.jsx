@@ -13,10 +13,31 @@ export default function AgendaProvider({children}) {
         horaFinalizacion: "",
     });
 
+    // Multi-slot: array de { fecha, horaInicio, horaFin }
+    const [horasSeleccionadas, setHorasSeleccionadas] = useState([]);
+
     const setFechaInicio = (fechaStr) => setAgenda(prev => ({...prev, fechaInicio: fechaStr}));
     const setHoraInicio = (horaStr) => setAgenda(prev => ({...prev, horaInicio: horaStr}));
     const setFechaFinalizacion = (fechaStr) => setAgenda(prev => ({...prev, fechaFinalizacion: fechaStr}));
     const setHoraFinalizacion = (horaStr) => setAgenda(prev => ({...prev, horaFinalizacion: horaStr}));
+
+    const agregarHora = (slot) => {
+        setHorasSeleccionadas(prev => {
+            if (prev.length >= 4) return prev;
+            // evitar duplicados
+            const existe = prev.some(s => s.fecha === slot.fecha && s.horaInicio === slot.horaInicio);
+            if (existe) return prev;
+            return [...prev, slot];
+        });
+    };
+
+    const eliminarHora = (index) => {
+        setHorasSeleccionadas(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const limpiarHoras = () => {
+        setHorasSeleccionadas([]);
+    };
 
     const value = {
         // valores (strings)
@@ -34,6 +55,12 @@ export default function AgendaProvider({children}) {
         // backward-compatibility aliases (mantener variables antiguas usadas en la app)
         horaFin: agenda.horaFinalizacion,
         setHoraFin: setHoraFinalizacion,
+
+        // Multi-slot
+        horasSeleccionadas,
+        agregarHora,
+        eliminarHora,
+        limpiarHoras,
     };
     return (
         <AgendaContext.Provider value={value}>

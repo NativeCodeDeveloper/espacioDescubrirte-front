@@ -14,7 +14,7 @@ export default function FormularioReservaProfesional() {
     const [rut, setRut] = useState("");
     const [telefono, setTelefono] = useState("");
     const [email, setEmail] = useState("");
-    const {horaInicio, horaFin, fechaInicio, fechaFinalizacion,} = useAgenda();
+    const { horasSeleccionadas } = useAgenda();
     const [listaTarifasProfesionales, setListaTarifasProfesionales] = useState([]);
 
     const [profesionalSeleccionado, setProfesionalSeleccionado] = useState("");
@@ -91,39 +91,19 @@ export default function FormularioReservaProfesional() {
     }, [id_profesional]);
 
 
-
-
-
-
-
-
-    // handleSubmit: se ejecuta al enviar el formulario
-    // Envía los datos al backend que crea la preferencia de Mercado Pago
-    async function pagarMercadoPago(
-        nombrePaciente,
-        apellidoPaciente,
-        rut,
-        telefono,
-        email,
-        fechaInicio,
-        horaInicio,
-        fechaFinalizacion,
-        horaFin,
-        totalPago,
-        profesionalSeleccionado,
-        servicioSeleccionado,
-        id_profesional
-    ) {
+    async function pagarMercadoPago() {
         try {
-            if (!nombrePaciente || !apellidoPaciente || !rut || !telefono || !email || !fechaInicio || !horaInicio || !fechaFinalizacion || !horaFin || !id_profesional) {
+            if (!nombrePaciente || !apellidoPaciente || !rut || !telefono || !email || !id_profesional) {
                 return toast.error("Debe completar toda la informacion para realizar la reserva")
+            }
+
+            if (!horasSeleccionadas || horasSeleccionadas.length === 0) {
+                return toast.error("Debe seleccionar al menos una hora para realizar la reserva")
             }
 
             if (totalPago <= 0) {
-                return toast.error("Debe completar toda la informacion para realizar la reserva")
+                return toast.error("Debe seleccionar un servicio para realizar la reserva")
             }
-
-            let horaFinalizacion = horaFin;
 
             const res = await fetch(`${API}/pagosMercadoPago/create-order`, {
                 method: "POST",
@@ -132,7 +112,7 @@ export default function FormularioReservaProfesional() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    tituloProducto: `Reserva Consulta: ${servicioSeleccionado} con ${profesionalSeleccionado}`,
+                    tituloProducto: `Reserva Consulta: ${servicioSeleccionado} con ${profesionalSeleccionado} (${horasSeleccionadas.length} sesión${horasSeleccionadas.length > 1 ? 'es' : ''})`,
                     precio: Number(totalPago),
                     cantidad: 1,
                     nombrePaciente,
@@ -140,10 +120,7 @@ export default function FormularioReservaProfesional() {
                     rut,
                     telefono,
                     email,
-                    fechaInicio,
-                    horaInicio,
-                    fechaFinalizacion,
-                    horaFinalizacion,
+                    horasSeleccionadas,
                     estadoReserva : 'reservada',
                     totalPago,
                     id_profesional
@@ -156,29 +133,21 @@ export default function FormularioReservaProfesional() {
             }
 
             const data = await res.json();
-            console.log("Respuesta create-order:", data);
 
             if (data) {
-
-                //data.sandbox_init_point || PARA PRUEBAS LOCALES ||data?.init_point;
                 const checkoutUrl = data?.init_point;
-                console.log("checkoutUrl:", checkoutUrl);
 
                 if (checkoutUrl) {
-                    console.log(checkoutUrl);
                     window.location.href = checkoutUrl;
-
                 } else {
-                    return toast.error("No se puede procesar el pago. Problema a nivel del Link de init poiunt")
+                    return toast.error("No se puede procesar el pago. Problema a nivel del Link de init point")
                 }
             } else {
                 return toast.error("No se puede procesar el pago. Intenet mas tarde.")
-
             }
         } catch (err) {
             console.error(err);
             return toast.error("No se puede procesar el pago por favor evalue otro medio de pago contactandonos por WhatsApp")
-
         }
     }
 
@@ -305,41 +274,42 @@ export default function FormularioReservaProfesional() {
                         </div>
                     </div>
 
-                    {/* Resumen */}
-                    {(fechaInicio || horaInicio || totalPago) && (
+                    {/* Resumen de citas */}
+                    {horasSeleccionadas.length > 0 && (
                         <div>
-                            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">Resumen de tu cita</h2>
+                            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+                                Resumen de tus citas ({horasSeleccionadas.length} sesión{horasSeleccionadas.length > 1 ? 'es' : ''})
+                            </h2>
                             <div className="mt-1 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent"></div>
-                            <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50/80 p-4">
-                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                                    {fechaInicio && (
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs text-white">D</div>
+                            <div className="mt-4 space-y-2 rounded-xl border border-slate-100 bg-slate-50/80 p-4">
+                                {horasSeleccionadas.map((sel, idx) => {
+                                    const fechaDate = new Date(sel.fecha + "T12:00:00");
+                                    const diaLabel = fechaDate.toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' });
+
+                                    return (
+                                        <div key={`${sel.fecha}-${sel.horaInicio}`} className="flex items-center gap-3">
+                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs font-bold text-white">
+                                                {idx + 1}
+                                            </div>
                                             <div>
-                                                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Fecha</p>
-                                                <p className="text-sm font-semibold text-slate-800">{fechaInicio.toString()}</p>
+                                                <p className="text-sm font-medium text-slate-800 capitalize">{diaLabel}</p>
+                                                <p className="text-xs text-slate-500">{sel.horaInicio} - {sel.horaFin}</p>
                                             </div>
                                         </div>
-                                    )}
-                                    {horaInicio && (
+                                    );
+                                })}
+
+                                {totalPago && (
+                                    <div className="mt-3 border-t border-slate-200 pt-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs text-white">H</div>
-                                            <div>
-                                                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Horario</p>
-                                                <p className="text-sm font-semibold text-slate-800">{horaInicio.toString()} – {horaFin.toString()}</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {totalPago && (
-                                        <div className="flex items-center gap-3 sm:col-span-2">
                                             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-xs font-bold text-white">$</div>
                                             <div>
                                                 <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Valor consulta</p>
                                                 <p className="text-sm font-bold text-emerald-700">{formatoCLP.format(totalPago)}</p>
                                             </div>
                                         </div>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -354,22 +324,7 @@ export default function FormularioReservaProfesional() {
                             funcion={(e) => {
                                 if (e?.preventDefault) e.preventDefault();
                                 if (e?.stopPropagation) e.stopPropagation();
-
-                                return pagarMercadoPago(
-                                    nombrePaciente,
-                                    apellidoPaciente,
-                                    rut,
-                                    telefono,
-                                    email,
-                                    fechaInicio,
-                                    horaInicio,
-                                    fechaFinalizacion,
-                                    horaFin,
-                                    totalPago,
-                                    profesionalSeleccionado,
-                                    servicioSeleccionado,
-                                    id_profesional
-                                );
+                                return pagarMercadoPago();
                             }}
                         />
                     </div>
