@@ -1,11 +1,57 @@
 "use client"
-import {useEffect, useState} from "react";
+import {useEffect, useState, useMemo} from "react";
 import ShadcnInput from "@/Componentes/shadcnInput2";
 import ShadcnButton2 from "@/Componentes/shadcnButton2";
 import {useAgenda} from "@/ContextosGlobales/AgendaContext";
 import {toast} from "react-hot-toast";
 import {useParams, useRouter} from "next/navigation";
 import {SelectDinamic} from "@/Componentes/SelectDinamic";
+
+function formatDateToYMD(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+function getWeekBounds(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    const dayOfWeek = d.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const lunes = new Date(d);
+    lunes.setDate(d.getDate() + diffToMonday);
+    const sabado = new Date(lunes);
+    sabado.setDate(lunes.getDate() + 5);
+    return { lunes, sabado };
+}
+
+function formatWeekRange(lunes, sabado) {
+    const opts = { day: 'numeric', month: 'short' };
+    return `Lun ${lunes.toLocaleDateString('es-CL', opts)} - Sáb ${sabado.toLocaleDateString('es-CL', opts)}`;
+}
+
+function getWeekKey(dateStr) {
+    const d = new Date(dateStr + "T12:00:00");
+    const { lunes } = getWeekBounds(d);
+    return formatDateToYMD(lunes);
+}
+
+function agruparPorSemana(horas) {
+    const grupos = {};
+    for (const slot of horas) {
+        const key = getWeekKey(slot.fecha);
+        if (!grupos[key]) grupos[key] = [];
+        grupos[key].push(slot);
+    }
+    return Object.entries(grupos)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([mondayStr, slots]) => {
+            const monday = new Date(mondayStr + "T12:00:00");
+            const { lunes, sabado } = getWeekBounds(monday);
+            return { lunes, sabado, mondayKey: mondayStr, slots };
+        });
+}
 
 export default function FormularioReservaProfesional() {
     const API = process.env.NEXT_PUBLIC_API_URL;
@@ -46,13 +92,26 @@ export default function FormularioReservaProfesional() {
         return "Horas Sueltas";
     }
 
-    const cantidadHoras = horasSeleccionadas.length;
-    const precioHora = calcularPrecioHora(cantidadHoras, precioBaseTarifa);
-    const descuentoPorcentaje = precioBaseTarifa > 0 && cantidadHoras > 0
-        ? Math.round(((precioBaseTarifa - precioHora) / precioBaseTarifa) * 100)
-        : 0;
-    const totalCalculado = cantidadHoras * precioHora;
-    const nombrePlan = getNombrePlan(cantidadHoras);
+    const cantidadHorasTotal = horasSeleccionadas.length;
+
+    // Agrupar por semana para calcular precio independiente por semana
+    const semanasAgrupadas = useMemo(() => agruparPorSemana(horasSeleccionadas), [horasSeleccionadas]);
+
+    const desgloseSemanal = useMemo(() => {
+        return semanasAgrupadas.map((semana) => {
+            const cantidadHoras = semana.slots.length;
+            const precioHora = calcularPrecioHora(cantidadHoras, precioBaseTarifa);
+            const descuentoPorcentaje = precioBaseTarifa > 0 && cantidadHoras > 0
+                ? Math.round(((precioBaseTarifa - precioHora) / precioBaseTarifa) * 100)
+                : 0;
+            const subtotal = cantidadHoras * precioHora;
+            const nombrePlan = getNombrePlan(cantidadHoras);
+            return { ...semana, cantidadHoras, precioHora, descuentoPorcentaje, subtotal, nombrePlan };
+        });
+    }, [semanasAgrupadas, precioBaseTarifa]);
+
+    const totalCalculado = desgloseSemanal.reduce((sum, s) => sum + s.subtotal, 0);
+    const ahorroTotal = desgloseSemanal.reduce((sum, s) => sum + (precioBaseTarifa - s.precioHora) * s.cantidadHoras, 0);
 
     async function seleccionarProfesionalDatos(id_profesional) {
         try {
@@ -120,12 +179,12 @@ export default function FormularioReservaProfesional() {
 
     // Actualizar totalPago automáticamente cuando cambian las horas o la tarifa
     useEffect(() => {
-        if (cantidadHoras > 0 && precioBaseTarifa > 0) {
+        if (cantidadHorasTotal > 0 && precioBaseTarifa > 0) {
             setTotalPago(totalCalculado);
         } else {
             setTotalPago("");
         }
-    }, [cantidadHoras, totalCalculado, precioBaseTarifa]);
+    }, [cantidadHorasTotal, totalCalculado, precioBaseTarifa]);
 
 
     async function pagarMercadoPago() {
@@ -314,87 +373,114 @@ export default function FormularioReservaProfesional() {
                         </div>
                     </div>
 
-                    {/* Resumen de citas */}
+                    {/* Resumen de citas agrupado por semana */}
                     {horasSeleccionadas.length > 0 && (
                         <div>
                             <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
-                                Resumen de tus citas ({horasSeleccionadas.length} sesión{horasSeleccionadas.length > 1 ? 'es' : ''})
+                                Resumen de tus citas ({cantidadHorasTotal} sesión{cantidadHorasTotal > 1 ? 'es' : ''}{desgloseSemanal.length > 1 ? `, ${desgloseSemanal.length} semanas` : ''})
                             </h2>
                             <div className="mt-1 h-px w-full bg-gradient-to-r from-slate-200 via-slate-100 to-transparent"></div>
-                            <div className="mt-4 space-y-2 rounded-xl border border-slate-100 bg-slate-50/80 p-4">
-                                {horasSeleccionadas.map((sel, idx) => {
-                                    const fechaDate = new Date(sel.fecha + "T12:00:00");
-                                    const diaLabel = fechaDate.toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' });
-
-                                    return (
-                                        <div key={`${sel.fecha}-${sel.horaInicio}`} className="flex items-center gap-3">
-                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs font-bold text-white">
-                                                {idx + 1}
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-slate-800 capitalize">{diaLabel}</p>
-                                                <p className="text-xs text-slate-500">{sel.horaInicio} - {sel.horaFin}</p>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-
-                                {cantidadHoras > 0 && precioBaseTarifa > 0 && (
-                                    <div className="mt-3 border-t border-slate-200 pt-3 space-y-2">
-                                        {/* Nombre del plan */}
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-xs font-bold text-white">
-                                                {cantidadHoras >= 5 ? "⏳" : cantidadHoras === 4 ? "📅" : "💼"}
-                                            </div>
-                                            <div>
-                                                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Plan aplicado</p>
-                                                <p className="text-sm font-semibold text-slate-800">{nombrePlan}</p>
-                                            </div>
+                            <div className="mt-4 space-y-4">
+                                {desgloseSemanal.map((semana, semanaIdx) => (
+                                    <div key={semana.mondayKey} className="rounded-xl border border-slate-100 bg-slate-50/80 p-4">
+                                        {/* Header de semana */}
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                                                {desgloseSemanal.length > 1 ? `Semana ${semanaIdx + 1}: ` : ''}{formatWeekRange(semana.lunes, semana.sabado)}
+                                            </h3>
+                                            <span className="text-xs font-semibold text-slate-600">
+                                                {semana.cantidadHoras} {semana.cantidadHoras === 1 ? 'hora' : 'horas'}
+                                            </span>
                                         </div>
 
-                                        {/* Precio por hora */}
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-200 text-xs font-bold text-slate-600">/hr</div>
-                                            <div className="flex items-center gap-2">
-                                                <div>
-                                                    <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Precio por hora</p>
-                                                    <p className="text-sm font-semibold text-slate-700">{formatoCLP.format(precioHora)}</p>
+                                        {/* Slots de esta semana */}
+                                        <div className="space-y-2">
+                                            {semana.slots.map((sel, idx) => {
+                                                const fechaDate = new Date(sel.fecha + "T12:00:00");
+                                                const diaLabel = fechaDate.toLocaleDateString('es-CL', { weekday: 'long', day: 'numeric', month: 'long' });
+                                                return (
+                                                    <div key={`${sel.fecha}-${sel.horaInicio}`} className="flex items-center gap-3">
+                                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs font-bold text-white">
+                                                            {idx + 1}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-medium text-slate-800 capitalize">{diaLabel}</p>
+                                                            <p className="text-xs text-slate-500">{sel.horaInicio} - {sel.horaFin}</p>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Desglose de precio por semana */}
+                                        {precioBaseTarifa > 0 && (
+                                            <div className="mt-3 border-t border-slate-200 pt-3 space-y-2">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-xs font-bold text-white">
+                                                        {semana.cantidadHoras >= 5 ? "⏳" : semana.cantidadHoras === 4 ? "📅" : "💼"}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Plan aplicado</p>
+                                                        <p className="text-sm font-semibold text-slate-800">{semana.nombrePlan}</p>
+                                                    </div>
                                                 </div>
-                                                {descuentoPorcentaje > 0 && (
-                                                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                                                        -{descuentoPorcentaje}% dto.
-                                                    </span>
-                                                )}
-                                                {descuentoPorcentaje > 0 && (
-                                                    <span className="text-xs text-slate-400 line-through">{formatoCLP.format(precioBaseTarifa)}</span>
-                                                )}
-                                            </div>
-                                        </div>
 
-                                        {/* Total */}
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-xs font-bold text-white">$</div>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-200 text-xs font-bold text-slate-600">/hr</div>
+                                                    <div className="flex items-center gap-2">
+                                                        <div>
+                                                            <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Precio por hora</p>
+                                                            <p className="text-sm font-semibold text-slate-700">{formatoCLP.format(semana.precioHora)}</p>
+                                                        </div>
+                                                        {semana.descuentoPorcentaje > 0 && (
+                                                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                                                                -{semana.descuentoPorcentaje}% dto.
+                                                            </span>
+                                                        )}
+                                                        {semana.descuentoPorcentaje > 0 && (
+                                                            <span className="text-xs text-slate-400 line-through">{formatoCLP.format(precioBaseTarifa)}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-xs font-bold text-white">$</div>
+                                                    <div>
+                                                        <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
+                                                            Subtotal ({semana.cantidadHoras} {semana.cantidadHoras === 1 ? 'hora' : 'horas'} x {formatoCLP.format(semana.precioHora)})
+                                                        </p>
+                                                        <p className="text-lg font-bold text-emerald-700">{formatoCLP.format(semana.subtotal)}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+
+                                {/* Total general */}
+                                {precioBaseTarifa > 0 && (
+                                    <div className="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4">
+                                        <div className="flex items-center justify-between">
                                             <div>
-                                                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
-                                                    Total ({cantidadHoras} {cantidadHoras === 1 ? 'hora' : 'horas'} × {formatoCLP.format(precioHora)})
+                                                <p className="text-xs font-medium uppercase tracking-wider text-emerald-600">
+                                                    Total a pagar{desgloseSemanal.length > 1 ? ` (${desgloseSemanal.length} semanas)` : ''}
                                                 </p>
-                                                <p className="text-lg font-bold text-emerald-700">{formatoCLP.format(totalCalculado)}</p>
+                                                <p className="text-2xl font-bold text-emerald-800">{formatoCLP.format(totalCalculado)}</p>
                                             </div>
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-lg font-bold text-white">$</div>
                                         </div>
-
-                                        {/* Ahorro */}
-                                        {descuentoPorcentaje > 0 && (
-                                            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center">
+                                        {ahorroTotal > 0 && (
+                                            <div className="mt-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-center">
                                                 <p className="text-xs font-medium text-emerald-700">
-                                                    Ahorras {formatoCLP.format((precioBaseTarifa - precioHora) * cantidadHoras)} esta semana
+                                                    Ahorras {formatoCLP.format(ahorroTotal)} en total con tus descuentos por volumen semanal
                                                 </p>
                                             </div>
                                         )}
                                     </div>
                                 )}
 
-                                {cantidadHoras > 0 && precioBaseTarifa === 0 && (
-                                    <div className="mt-3 border-t border-slate-200 pt-3">
+                                {precioBaseTarifa === 0 && (
+                                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
                                         <p className="text-xs text-amber-600 font-medium">Selecciona un motivo de consulta para ver el precio.</p>
                                     </div>
                                 )}

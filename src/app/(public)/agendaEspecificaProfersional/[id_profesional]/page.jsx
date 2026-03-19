@@ -39,6 +39,28 @@ function formatWeekRange(lunes, sabado) {
     return `Lun ${lunes.toLocaleDateString('es-CL', opts)} - Sáb ${sabado.toLocaleDateString('es-CL', opts)}`;
 }
 
+function getWeekKey(dateStr) {
+    const d = new Date(dateStr + "T12:00:00");
+    const { lunes } = getWeekBounds(d);
+    return formatDateToYMD(lunes);
+}
+
+function agruparPorSemana(horas) {
+    const grupos = {};
+    for (const slot of horas) {
+        const key = getWeekKey(slot.fecha);
+        if (!grupos[key]) grupos[key] = [];
+        grupos[key].push(slot);
+    }
+    return Object.entries(grupos)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([mondayStr, slots]) => {
+            const monday = new Date(mondayStr + "T12:00:00");
+            const { lunes, sabado } = getWeekBounds(monday);
+            return { lunes, sabado, mondayKey: mondayStr, slots };
+        });
+}
+
 export default function CalendarioMensualHoras() {
     const { id_profesional } = useParams();
     const [nombreProfesional, setNombreProfesional] = useState("");
@@ -149,11 +171,9 @@ export default function CalendarioMensualHoras() {
         return horasSeleccionadas.some(s => s.fecha === fechaYMD);
     };
 
-    // Semana activa (basada en la primera selección)
-    const activaWeekBounds = useMemo(() => {
-        if (horasSeleccionadas.length === 0) return null;
-        const firstDate = new Date(horasSeleccionadas[0].fecha + "T12:00:00");
-        return getWeekBounds(firstDate);
+    // Semanas agrupadas para multi-semana
+    const semanasAgrupadas = useMemo(() => {
+        return agruparPorSemana(horasSeleccionadas);
     }, [horasSeleccionadas]);
 
     /* ---------- handlers ---------- */
@@ -179,18 +199,6 @@ export default function CalendarioMensualHoras() {
                 }
             });
             return;
-        }
-
-        // Si hay selecciones previas, verificar que sea la misma semana
-        if (horasSeleccionadas.length > 0) {
-            const firstDate = new Date(horasSeleccionadas[0].fecha + "T12:00:00");
-            if (!isSameWeek(fecha, firstDate)) {
-                limpiarHoras();
-                toast("Se limpiaron las selecciones previas (semana diferente)", {
-                    icon: "ℹ️",
-                    duration: 3000,
-                });
-            }
         }
 
         setFechaSeleccionada(fecha);
@@ -223,20 +231,6 @@ export default function CalendarioMensualHoras() {
             if (slotStartMinutes < nowMinutes) {
                 toast.error("No puedes agendar una hora que ya pasó");
                 return;
-            }
-        }
-
-        // Sin límite estricto de horas por semana
-
-        // Verificar misma semana
-        if (horasSeleccionadas.length > 0) {
-            const firstDate = new Date(horasSeleccionadas[0].fecha + "T12:00:00");
-            if (!isSameWeek(fechaSeleccionada, firstDate)) {
-                limpiarHoras();
-                toast("Se limpiaron las selecciones previas (semana diferente)", {
-                    icon: "ℹ️",
-                    duration: 3000,
-                });
             }
         }
 
@@ -460,15 +454,26 @@ export default function CalendarioMensualHoras() {
                         )}
                     </div>
 
-                    {/* Indicador de semana activa y contador */}
-                    {horasSeleccionadas.length > 0 && activaWeekBounds && (
-                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2">
-                            <span className="text-xs font-medium text-green-700">
-                                Semana: {formatWeekRange(activaWeekBounds.lunes, activaWeekBounds.sabado)}
-                            </span>
-                            <span className="text-xs font-semibold text-green-800">
-                                {horasSeleccionadas.length} {horasSeleccionadas.length === 1 ? 'hora seleccionada' : 'horas seleccionadas'}
-                            </span>
+                    {/* Indicador de semanas y contador */}
+                    {horasSeleccionadas.length > 0 && semanasAgrupadas.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                            {semanasAgrupadas.map((semana) => (
+                                <div key={semana.mondayKey}
+                                     className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2">
+                                    <span className="text-xs font-medium text-green-700">
+                                        {formatWeekRange(semana.lunes, semana.sabado)}
+                                    </span>
+                                    <span className="text-xs font-semibold text-green-800">
+                                        {semana.slots.length} {semana.slots.length === 1 ? 'hora' : 'horas'}
+                                    </span>
+                                </div>
+                            ))}
+                            <div className="flex items-center justify-end px-1">
+                                <span className="text-xs font-bold text-slate-700">
+                                    Total: {horasSeleccionadas.length} {horasSeleccionadas.length === 1 ? 'hora' : 'horas'}
+                                    {semanasAgrupadas.length > 1 && ` en ${semanasAgrupadas.length} semanas`}
+                                </span>
+                            </div>
                         </div>
                     )}
 
@@ -575,40 +580,51 @@ export default function CalendarioMensualHoras() {
                         </div>
                     )}
 
-                    {/* Panel resumen de selecciones */}
+                    {/* Panel resumen de selecciones agrupado por semana */}
                     {horasSeleccionadas.length > 0 && (
                         <div className="mt-5">
                             <h3 className="text-sm font-semibold text-slate-800 mb-2">Horas seleccionadas ({horasSeleccionadas.length})</h3>
-                            <div className="space-y-2 rounded-xl border border-green-200 bg-green-50/50 p-3">
-                                {horasSeleccionadas.map((sel, idx) => {
-                                    const fechaDate = new Date(sel.fecha + "T12:00:00");
-                                    const diaLabel = fechaDate.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' });
-
-                                    return (
-                                        <div key={`${sel.fecha}-${sel.horaInicio}`}
-                                            className="flex items-center justify-between rounded-lg border border-green-200 bg-white px-3 py-2">
-                                            <div className="flex items-center gap-3">
-                                                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-600 text-[10px] font-bold text-white">
-                                                    {idx + 1}
-                                                </span>
-                                                <div>
-                                                    <span className="text-sm font-medium text-slate-800 capitalize">{diaLabel}</span>
-                                                    <span className="mx-2 text-slate-400">|</span>
-                                                    <span className="text-sm text-slate-600">{sel.horaInicio} - {sel.horaFin}</span>
-                                                </div>
-                                            </div>
-                                            <button
-                                                onClick={() => eliminarHora(idx)}
-                                                className="rounded-md p-1 text-red-400 hover:bg-red-50 hover:text-red-600 transition"
-                                                title="Eliminar"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
+                            <div className="space-y-3">
+                                {semanasAgrupadas.map((semana) => (
+                                    <div key={semana.mondayKey} className="rounded-xl border border-green-200 bg-green-50/50 p-3">
+                                        <div className="mb-2 text-xs font-semibold text-green-700">
+                                            {formatWeekRange(semana.lunes, semana.sabado)} ({semana.slots.length} {semana.slots.length === 1 ? 'hora' : 'horas'})
                                         </div>
-                                    );
-                                })}
+                                        <div className="space-y-2">
+                                            {semana.slots.map((sel, idx) => {
+                                                const fechaDate = new Date(sel.fecha + "T12:00:00");
+                                                const diaLabel = fechaDate.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric', month: 'short' });
+                                                const globalIdx = horasSeleccionadas.findIndex(
+                                                    s => s.fecha === sel.fecha && s.horaInicio === sel.horaInicio
+                                                );
+                                                return (
+                                                    <div key={`${sel.fecha}-${sel.horaInicio}`}
+                                                        className="flex items-center justify-between rounded-lg border border-green-200 bg-white px-3 py-2">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-600 text-[10px] font-bold text-white">
+                                                                {idx + 1}
+                                                            </span>
+                                                            <div>
+                                                                <span className="text-sm font-medium text-slate-800 capitalize">{diaLabel}</span>
+                                                                <span className="mx-2 text-slate-400">|</span>
+                                                                <span className="text-sm text-slate-600">{sel.horaInicio} - {sel.horaFin}</span>
+                                                            </div>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => eliminarHora(globalIdx)}
+                                                            className="rounded-md p-1 text-red-400 hover:bg-red-50 hover:text-red-600 transition"
+                                                            title="Eliminar"
+                                                        >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     )}
@@ -640,9 +656,9 @@ export default function CalendarioMensualHoras() {
                         Horarios: Lun-Sáb 9:00-22:00 | Dom Cerrado
                     </p>
                     <div className="mt-3 flex flex-wrap justify-center gap-2 text-[10px] text-slate-500">
-                        <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1">1-3 hrs: $7.000/hr</span>
-                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-emerald-700">4 hrs: $6.000/hr</span>
-                        <span className="rounded-full border border-emerald-300 bg-emerald-100 px-2.5 py-1 text-emerald-800 font-medium">5+ hrs: $5.500/hr</span>
+                        <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1">1-3 hrs/semana: $7.000/hr</span>
+                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-emerald-700">4 hrs/semana: $6.000/hr</span>
+                        <span className="rounded-full border border-emerald-300 bg-emerald-100 px-2.5 py-1 text-emerald-800 font-medium">5+ hrs/semana: $5.500/hr</span>
                     </div>
                 </footer>
             </div>
