@@ -353,7 +353,7 @@ export default function AgendaCitas() {
                                         </button>
                                     </div>
                                     <div className="mt-5">
-                                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Profesional</label>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Agenda</label>
                                         <SelectDinamic
                                             value={id_profesional}
                                             onChange={(e) => setId_profesional(e.target.value)}
@@ -443,8 +443,8 @@ export default function AgendaCitas() {
                                 <TableHeader>
                                     <TableRow className="bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-600 hover:to-cyan-500">
                                         <TableHead className="text-center font-semibold text-white text-xs uppercase tracking-wider px-3 py-3">Fecha</TableHead>
-                                        <TableHead className="text-center font-semibold text-white text-xs uppercase tracking-wider px-3 py-3">Paciente</TableHead>
-                                        <TableHead className="text-center font-semibold text-white text-xs uppercase tracking-wider px-3 py-3">Profesional</TableHead>
+                                        <TableHead className="text-center font-semibold text-white text-xs uppercase tracking-wider px-3 py-3">Cliente</TableHead>
+                                        <TableHead className="text-center font-semibold text-white text-xs uppercase tracking-wider px-3 py-3">Agenda</TableHead>
                                         <TableHead className="text-center font-semibold text-white text-xs uppercase tracking-wider px-3 py-3">RUT</TableHead>
                                         <TableHead className="text-center font-semibold text-white text-xs uppercase tracking-wider px-3 py-3">Estado</TableHead>
                                         <TableHead className="text-center font-semibold text-white text-xs uppercase tracking-wider px-3 py-3">Detalle</TableHead>

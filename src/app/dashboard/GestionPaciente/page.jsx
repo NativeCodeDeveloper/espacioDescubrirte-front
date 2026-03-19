@@ -14,10 +14,10 @@ import {UserIcon} from "@heroicons/react/24/outline";
 import {InfoButton} from "@/Componentes/InfoButton";
 
 
-export default function GestionPaciente() {
+export default function GestionCliente() {
 
     const API = process.env.NEXT_PUBLIC_API_URL;
-    const [listaPacientes, setListaPacientes] = useState([]);
+    const [listaClientes, setListaClientes] = useState([]);
     const [nombre, setNombre] = useState("");
     const [apellido, setApellido] = useState("");
     const [rut, setRut] = useState("");
@@ -34,7 +34,7 @@ export default function GestionPaciente() {
 
     const router = useRouter();
 
-    function verDetallePaciente(id_paciente) {
+    function verDetalleCliente(id_paciente) {
         router.push(`/dashboard/paciente/${id_paciente}`);
     }
 
@@ -61,7 +61,7 @@ export default function GestionPaciente() {
                 const dataRutSimilar = await res.json()
 
                 if (Array.isArray(dataRutSimilar) && dataRutSimilar.length > 0) {
-                    setListaPacientes(dataRutSimilar)
+                    setListaClientes(dataRutSimilar)
                     return toast.success("Similitud encontrada!")
                 } else {
                     return toast.error("No se han encontrado similitudes.")
@@ -98,7 +98,7 @@ export default function GestionPaciente() {
                 const dataSimilar = await res.json();
 
                 if (Array.isArray(dataSimilar) && dataSimilar.length > 0) {
-                    setListaPacientes(dataSimilar);
+                    setListaClientes(dataSimilar);
                     return toast.success("Similitud encontrada!")
                 } else {
                     return toast.error("No se han encontrado similitudes.")
@@ -110,7 +110,7 @@ export default function GestionPaciente() {
         }
     }
 
-    async function insertarPaciente(nombre, apellido, rut, nacimiento, sexo, prevision, telefono, correo, direccion, pais) {
+    async function insertarCliente(nombre, apellido, rut, nacimiento, sexo, prevision, telefono, correo, direccion, pais) {
         try {
             let prevision_id = null;
 
@@ -123,7 +123,7 @@ export default function GestionPaciente() {
             }
 
             if (!nombre || !apellido || !rut || !nacimiento || !sexo || !prevision_id || !telefono || !correo || !direccion || !pais) {
-                return toast.error("Debe llenar todos los campos para ingresar un nuevo paciente en las bases de datos.")
+                return toast.error("Debe llenar todos los campos para ingresar un nuevo cliente en las bases de datos.")
             }
 
             const res = await fetch(`${API}/pacientes/pacientesInsercion`, {
@@ -148,7 +148,7 @@ export default function GestionPaciente() {
             })
 
             if (!res.ok) {
-                return toast.error("Problema al Ingresar nuevo paciente en el servidor. Por favor contacte a soporte Tecnico de Medify")
+                return toast.error("Problema al Ingresar nuevo cliente en el servidor. Por favor contacte a soporte Tecnico de Medify")
             } else {
                 const respuestaBackend = await res.json();
 
@@ -160,17 +160,17 @@ export default function GestionPaciente() {
                     setCorreo("");
                     setDireccion("");
                     setPais("");
-                    await listarPacientes();
-                    return toast.success("Paciente ingresado correctamente.");
+                    await listarClientes();
+                    return toast.success("Cliente ingresado correctamente.");
                 }
             }
         } catch (err) {
             console.error(err);
-            return toast.error("Problema al Ingresar nuevo paciente en el servidor. Por favor contacte a soporte Tecnico de Medify")
+            return toast.error("Problema al Ingresar nuevo cliente en el servidor. Por favor contacte a soporte Tecnico de Medify")
         }
     }
 
-    async function listarPacientes() {
+    async function listarClientes() {
         try {
             const res = await fetch(`${API}/pacientes`, {
                 method: "GET",
@@ -181,10 +181,10 @@ export default function GestionPaciente() {
             })
 
             if (!res.ok) {
-                return toast.error("Ha ocurrido un error listando los pacientes . contacte a soporte IT de Medify")
+                return toast.error("Ha ocurrido un error listando los clientes . contacte a soporte IT de Medify")
             } else {
-                const dataPacientes = await res.json()
-                setListaPacientes(dataPacientes);
+                const dataClientes = await res.json()
+                setListaClientes(dataClientes);
             }
         } catch (error) {
             console.log(error);
@@ -193,7 +193,7 @@ export default function GestionPaciente() {
     }
 
     useEffect(() => {
-        listarPacientes();
+        listarClientes();
     }, [])
 
     return (
@@ -207,11 +207,11 @@ export default function GestionPaciente() {
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-widest text-sky-600 mb-1">Administración</p>
                         <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">
-                            Gestión de Pacientes
+                            Gestión de Clientes
                         </h1>
-                        <p className="text-sm text-slate-500 mt-1">Registra pacientes rápidamente para abrir su ficha clínica</p>
+                        <p className="text-sm text-slate-500 mt-1">Registra Clientes rápidamente para realizar agendamientos automaticos</p>
                     </div>
-                    <InfoButton informacion={"Este módulo de la aplicación está diseñado para registrar el libro de ficha clínica de un paciente. Cuando un paciente acude por primera vez a una sesión o consulta, debe ser ingresado una única vez en este apartado. De esta forma, el sistema almacenará sus datos demográficos, permitiendo posteriormente comenzar con la documentación de sus fichas clínicas.\n\nEs importante considerar que la agenda de un paciente no está directamente relacionada con su ingreso en el sistema. Un paciente puede estar agendado para una atención, pero no contará con ficha clínica hasta que sea registrado previamente en esta sección.\n\nPara editar la información de un paciente, en la tabla inferior se debe seleccionar el ícono de la persona ubicado bajo el título \"Ver datos\". Al seleccionarlo, se podrá acceder a la información del paciente para modificarla o eliminarla, según sea necesario.\n"}/>
+                    <InfoButton informacion={"Este módulo permite registrar clientes y guardar su información para poder agendarlos de forma rápida y express.\n\nCuando un cliente se registra por primera vez, sus datos quedan almacenados en el sistema. Así, en futuras ocasiones podrás agendar sus citas de manera inmediata sin volver a ingresar su información.\n\nPara editar los datos de un cliente, selecciona el ícono de persona en la columna \"Ver\" de la tabla. Desde ahí podrás modificar o eliminar su información.\n"}/>
                 </div>
 
                 <div className="space-y-6">
@@ -222,7 +222,7 @@ export default function GestionPaciente() {
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
                             </svg>
-                            <h2 className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Ingreso de Paciente</h2>
+                            <h2 className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Ingreso de Cliente</h2>
                         </div>
 
                         <div className="p-5 md:p-6">
@@ -291,7 +291,7 @@ export default function GestionPaciente() {
                                     <label className="block text-sm font-medium text-slate-700 mb-1.5">Correo</label>
                                     <ShadcnInput
                                         value={correo}
-                                        placeholder={"CorreoDelPaciente@gmail.com"}
+                                        placeholder={"CorreoDelCliente@gmail.com"}
                                         onChange={(e) => setCorreo(e.target.value)}
                                         className="w-full"/>
                                 </div>
@@ -327,12 +327,12 @@ export default function GestionPaciente() {
                                     <button
                                         className="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-sky-600 to-cyan-500 rounded-lg hover:from-sky-700 hover:to-cyan-600 transition-all duration-150 shadow-md hover:shadow-lg"
                                         type={"button"}
-                                        onClick={() => insertarPaciente(nombre, apellido, rut, nacimiento, sexo, prevision, telefono, correo, direccion, pais)}
+                                        onClick={() => insertarCliente(nombre, apellido, rut, nacimiento, sexo, prevision, telefono, correo, direccion, pais)}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/>
                                         </svg>
-                                        Ingresar Paciente
+                                        Ingresar Cliente
                                     </button>
                                 </div>
                             </div>
@@ -345,7 +345,7 @@ export default function GestionPaciente() {
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
-                            <h2 className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Búsqueda de Pacientes</h2>
+                            <h2 className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Búsqueda de Clientes</h2>
                         </div>
 
                         <div className="p-5 md:p-6">
@@ -394,21 +394,21 @@ export default function GestionPaciente() {
                         </div>
                     </div>
 
-                    {/* Tabla de pacientes */}
+                    {/* Tabla de clientes */}
                     <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                         <div className="border-b border-slate-100 bg-slate-50/50 px-5 py-3 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 </svg>
-                                <h2 className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Listado de Pacientes</h2>
+                                <h2 className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Listado de Clientes</h2>
                             </div>
                             <div className="flex items-center gap-3">
                                 <span className="inline-flex items-center justify-center h-6 min-w-[24px] px-2 rounded-full text-xs font-bold bg-sky-100 text-sky-700">
-                                    {listaPacientes.length}
+                                    {listaClientes.length}
                                 </span>
                                 <button
-                                    onClick={() => listarPacientes()}
+                                    onClick={() => listarClientes()}
                                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all duration-150">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -420,7 +420,7 @@ export default function GestionPaciente() {
 
                         <div className="overflow-x-auto">
                             <Table>
-                                <TableCaption className="font-medium text-slate-400 text-xs py-4">Listado de pacientes registrados en el sistema</TableCaption>
+                                <TableCaption className="font-medium text-slate-400 text-xs py-4">Listado de clientes registrados en el sistema</TableCaption>
                                 <TableHeader>
                                     <TableRow className="bg-gradient-to-r from-sky-600 to-cyan-500 hover:from-sky-600 hover:to-cyan-500">
                                         <TableHead className="w-[80px] text-center font-semibold text-white text-xs uppercase tracking-wider px-3 py-3">Ver</TableHead>
@@ -432,30 +432,30 @@ export default function GestionPaciente() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {listaPacientes.map((paciente, i) => (
+                                    {listaClientes.map((cliente, i) => (
                                         <TableRow
-                                            key={paciente.id_paciente}
+                                            key={cliente.id_paciente}
                                             className={"hover:bg-sky-50/50 transition-colors duration-100 " + (i % 2 === 0 ? 'bg-white' : 'bg-slate-50/50')}>
                                             <TableCell className="text-center px-3 py-2.5">
                                                 <button
-                                                    onClick={() => verDetallePaciente(paciente.id_paciente)}
+                                                    onClick={() => verDetalleCliente(cliente.id_paciente)}
                                                     className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-sky-50 border border-sky-100 text-sky-600 hover:bg-sky-100 hover:text-sky-700 transition-colors duration-150">
                                                     <UserIcon className="w-4 h-4"/>
                                                 </button>
                                             </TableCell>
-                                            <TableCell className="font-medium text-slate-800 text-sm px-3 py-2.5">{paciente.nombre}</TableCell>
-                                            <TableCell className="text-slate-600 text-sm px-3 py-2.5">{paciente.apellido}</TableCell>
-                                            <TableCell className="text-slate-600 text-sm px-3 py-2.5 font-mono">{paciente.rut}</TableCell>
-                                            <TableCell className="text-right text-slate-600 text-sm px-3 py-2.5">{paciente.telefono}</TableCell>
+                                            <TableCell className="font-medium text-slate-800 text-sm px-3 py-2.5">{cliente.nombre}</TableCell>
+                                            <TableCell className="text-slate-600 text-sm px-3 py-2.5">{cliente.apellido}</TableCell>
+                                            <TableCell className="text-slate-600 text-sm px-3 py-2.5 font-mono">{cliente.rut}</TableCell>
+                                            <TableCell className="text-right text-slate-600 text-sm px-3 py-2.5">{cliente.telefono}</TableCell>
                                             <TableCell className="text-center px-3 py-2.5">
                                                 <button
                                                     onClick={() => {
                                                         const params = new URLSearchParams({
-                                                            nombre: paciente.nombre || "",
-                                                            apellido: paciente.apellido || "",
-                                                            rut: paciente.rut || "",
-                                                            telefono: paciente.telefono || "",
-                                                            email: paciente.correo || "",
+                                                            nombre: cliente.nombre || "",
+                                                            apellido: cliente.apellido || "",
+                                                            rut: cliente.rut || "",
+                                                            telefono: cliente.telefono || "",
+                                                            email: cliente.correo || "",
                                                         });
                                                         router.push(`/dashboard/calendario?${params.toString()}`);
                                                     }}
@@ -463,7 +463,7 @@ export default function GestionPaciente() {
                                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                                     </svg>
-                                                    Agendar paciente
+                                                    Agendar cliente
                                                 </button>
                                             </TableCell>
                                         </TableRow>

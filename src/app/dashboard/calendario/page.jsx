@@ -845,7 +845,7 @@ function CalendarioContent() {
                                 </div>
 
                                 <div className="sm:col-span-2">
-                                    <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">Profesional</label>
+                                    <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">Agenda</label>
                                     <SelectDinamic
                                         value={id_profesional}
                                         onChange={(e) => setId_profesional(Number(e.target.value))}

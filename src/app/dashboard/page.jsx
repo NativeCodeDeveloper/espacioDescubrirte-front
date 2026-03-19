@@ -39,9 +39,8 @@ const stagger = {
 };
 
 const acciones = [
-    { label: "Nuevo paciente", desc: "Registrar", icon: UserPlus, href: "/dashboard/GestionPaciente", color: "from-cyan-400 to-cyan-600" },
+    { label: "Nuevo Cliente", desc: "Registrar", icon: UserPlus, href: "/dashboard/GestionPaciente", color: "from-cyan-400 to-cyan-600" },
     { label: "Nueva cita", desc: "Agendar", icon: CalendarPlus, href: "/dashboard/calendario", color: "from-indigo-400 to-indigo-600" },
-    { label: "Ficha clinica", desc: "Consultar", icon: FileText, href: "/dashboard/FichaClinica", color: "from-cyan-500 to-indigo-500" },
     { label: "Calendario", desc: "Ver agenda", icon: Calendar, href: "/dashboard/calendarioGeneral", color: "from-indigo-500 to-cyan-500" },
 ];
 

@@ -26,7 +26,7 @@ export default function AntofagastaPage() {
               href={RESERVA_HREF}
               className="rounded-full bg-emerald-700 px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white transition hover:bg-emerald-600"
             >
-              Ir a agenda
+              Agendar un Box
             </Link>
             <Link
               href="/servicios"
