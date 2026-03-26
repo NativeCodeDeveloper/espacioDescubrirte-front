@@ -140,7 +140,7 @@ export default function CalendarioMensualHoras() {
             const attStart = cursor;
             const attEnd = cursor + 60;
             slots.push({ start: minutesToHHMM(attStart), end: minutesToHHMM(attEnd) });
-            cursor = attEnd + 10;
+            cursor = attEnd;
         }
 
         return slots;
