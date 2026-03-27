@@ -111,10 +111,11 @@ export default function CalendarioMensualHoras() {
         const year = mesActual.getFullYear();
         const month = mesActual.getMonth();
         const firstDay = new Date(year, month, 1).getDay(); // 0=domingo
+        const adjustedFirst = firstDay === 0 ? 6 : firstDay - 1; // 0=lunes
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
         const dias = [];
-        for (let i = 0; i < firstDay; i++) dias.push(null);
+        for (let i = 0; i < adjustedFirst; i++) dias.push(null);
         for (let d = 1; d <= daysInMonth; d++) dias.push(new Date(year, month, d));
         return dias;
     };
@@ -388,7 +389,7 @@ export default function CalendarioMensualHoras() {
 
                     {/* calendario */}
                     <div className="mt-4 grid grid-cols-7 gap-2 rounded-xl bg-slate-900/[0.02] p-2 ring-1 ring-slate-900/5">
-                        {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((d, idx) => (
+                        {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d, idx) => (
                             <strong key={`weekday-${idx}`}
                                 className="text-center text-xs font-semibold text-slate-500">{d}</strong>
                         ))}
