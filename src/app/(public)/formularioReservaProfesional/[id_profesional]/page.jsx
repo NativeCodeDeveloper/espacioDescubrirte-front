@@ -111,6 +111,8 @@ export default function FormularioReservaProfesional() {
     }, [semanasAgrupadas, precioBaseTarifa]);
 
     const totalCalculado = desgloseSemanal.reduce((sum, s) => sum + s.subtotal, 0);
+    const ivaTotal = Math.round(totalCalculado * 0.19);
+    const totalConIva = totalCalculado + ivaTotal;
     const ahorroTotal = desgloseSemanal.reduce((sum, s) => sum + (precioBaseTarifa - s.precioHora) * s.cantidadHoras, 0);
 
     async function seleccionarProfesionalDatos(id_profesional) {
@@ -180,11 +182,11 @@ export default function FormularioReservaProfesional() {
     // Actualizar totalPago automáticamente cuando cambian las horas o la tarifa
     useEffect(() => {
         if (cantidadHorasTotal > 0 && precioBaseTarifa > 0) {
-            setTotalPago(totalCalculado);
+            setTotalPago(totalConIva);
         } else {
             setTotalPago("");
         }
-    }, [cantidadHorasTotal, totalCalculado, precioBaseTarifa]);
+    }, [cantidadHorasTotal, totalConIva, precioBaseTarifa]);
 
 
     async function pagarMercadoPago() {
@@ -460,14 +462,25 @@ export default function FormularioReservaProfesional() {
                                 {/* Total general */}
                                 {precioBaseTarifa > 0 && (
                                     <div className="rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-xs font-medium uppercase tracking-wider text-emerald-600">
-                                                    Total a pagar{desgloseSemanal.length > 1 ? ` (${desgloseSemanal.length} semanas)` : ''}
+                                        <div className="space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                                                    Subtotal{desgloseSemanal.length > 1 ? ` (${desgloseSemanal.length} semanas)` : ''}
                                                 </p>
-                                                <p className="text-2xl font-bold text-emerald-800">{formatoCLP.format(totalCalculado)}</p>
+                                                <p className="text-sm font-semibold text-slate-700">{formatoCLP.format(totalCalculado)}</p>
                                             </div>
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-lg font-bold text-white">$</div>
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">IVA (19%)</p>
+                                                <p className="text-sm font-semibold text-slate-700">{formatoCLP.format(ivaTotal)}</p>
+                                            </div>
+                                            <div className="h-px w-full bg-emerald-200"></div>
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-xs font-medium uppercase tracking-wider text-emerald-600">Total a pagar</p>
+                                                    <p className="text-2xl font-bold text-emerald-800">{formatoCLP.format(totalConIva)}</p>
+                                                </div>
+                                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-lg font-bold text-white">$</div>
+                                            </div>
                                         </div>
                                         {ahorroTotal > 0 && (
                                             <div className="mt-2 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-center">

@@ -122,8 +122,6 @@ export default function CalendarioMensualHoras() {
     const attentionSlots = useMemo(() => {
         if (!fechaSeleccionada) return [];
 
-        const dayOfWeek = fechaSeleccionada.getDay();
-        if (dayOfWeek === 0) return [];
 
         const slots = [];
         const startMinutes = 9 * 60;
@@ -185,19 +183,6 @@ export default function CalendarioMensualHoras() {
 
         if (day < today) {
             toast.error("No puedes agendar en fechas pasadas");
-            return;
-        }
-
-        const dayOfWeek = fecha.getDay();
-        if (dayOfWeek === 0) {
-            toast.error("Las atenciones son de Lunes a Sábado.\nLun-Sáb: 9:00-22:00", {
-                duration: 4000,
-                style: {
-                    background: '#FEE2E2',
-                    color: '#991B1B',
-                    border: '1px solid #FCA5A5',
-                }
-            });
             return;
         }
 
@@ -415,8 +400,7 @@ export default function CalendarioMensualHoras() {
                                 const day = new Date(dia);
                                 day.setHours(0, 0, 0, 0);
                                 const isPastDay = day < today;
-                                const isSunday = dia.getDay() === 0;
-                                const isDisabled = isPastDay || isSunday;
+                                const isDisabled = isPastDay;
                                 const isSelected = fechaSeleccionada?.toDateString() === dia.toDateString();
                                 const hasSelections = dayHasSelections(dia);
 
@@ -432,7 +416,7 @@ export default function CalendarioMensualHoras() {
                                         className={
                                             "relative h-10 flex items-center justify-center rounded-md text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 " +
                                             (isDisabled
-                                                ? "cursor-not-allowed border border-slate-200/70 bg-white/60 text-slate-400 shadow-sm" + (isSunday ? " opacity-50" : "")
+                                                ? "cursor-not-allowed border border-slate-200/70 bg-white/60 text-slate-400 shadow-sm"
                                                 : isSelected
                                                     ? "border border-gray-900 bg-gray-900 text-white shadow-md shadow-gray-900/10"
                                                     : hasSelections
@@ -653,7 +637,7 @@ export default function CalendarioMensualHoras() {
                         Sucursales adaptadas y personalizada para que tus pacientes se sientan en casa.
                     </p>
                     <p className="mt-2 text-[11px] text-slate-400">
-                        Horarios: Lun-Sáb 9:00-22:00 | Dom Cerrado
+                        Horarios: Lun-Dom 9:00-22:00
                     </p>
                     <div className="mt-3 flex flex-wrap justify-center gap-2 text-[10px] text-slate-500">
                         <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1">1-3 hrs/semana: $7.000/hr</span>
