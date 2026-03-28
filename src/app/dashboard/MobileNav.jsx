@@ -11,15 +11,14 @@ const links = [
   { label: "Estado de Reservaciones", href: "/dashboard/agendaCitas" },
   { label: "Ingreso de Pacientes", href: "/dashboard/GestionPaciente" },
   { label: "Carpeta del paciente", href: "/dashboard/FichaClinica" },
-  { label: "Publicaciones", href: "/dashboard/publicaciones" },
-  { label: "Carrusel de Portada", href: "/dashboard/portadaEdit" },
+  
 ];
 
 const sections = [
   { title: "Principal", items: [links[0]] },
   { title: "Agenda Clínica", items: [links[1], links[2], links[3]] },
   { title: "Registros Clínicos", items: [links[4], links[5]] },
-  { title: "Administración Web", items: [links[6], links[7]] },
+  // { title: "Administración Web", items: [links[6], links[7]] },
 ];
 
 export default function MobileNav() {
@@ -63,7 +62,7 @@ export default function MobileNav() {
                     {section.title}
                   </div>
                   <div className="space-y-0.5">
-                    {section.items.map((item) => (
+                    {section.items.filter(Boolean).map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}

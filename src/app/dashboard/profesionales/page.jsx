@@ -209,10 +209,17 @@ export default function Profesionales() {
                 <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div className="flex flex-col gap-1">
                         <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
+<<<<<<< HEAD
                             Gestión de agendas
                         </h1>
                         <p className="text-sm text-slate-500">
                             Administra las horas, los profesionales, los box y los calendarios desde una sola vista.
+=======
+                            Sucurales
+                        </h1>
+                        <p className="text-sm text-slate-500">
+                            Gestión de Sucursales registradas en la plataforma
+>>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                         </p>
                     </div>
                 </div>
@@ -224,21 +231,29 @@ export default function Profesionales() {
                         <div className="space-y-1">
                             <h2 className="text-base font-semibold text-slate-900">
                                 Ingreso y edición
-                                <span className="ml-2 text-blue-700">(Profesional)</span>
+                                <span className="ml-2 text-blue-700">(Sucursal)</span>
                             </h2>
                             <p className="text-sm text-slate-500">
-                                Complete los campos para registrar o actualizar un profesional.
+                                Complete los campos para registrar o actualizar una Sucursal.
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 gap-5">
                             <div className="space-y-1.5">
+<<<<<<< HEAD
                                 <label className="text-sm font-medium text-slate-700">Nombre de la Agenda</label>
+=======
+                                <label className="text-sm font-medium text-slate-700">Nombre de la Sucursal</label>
+>>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
 
                                 <InputTextDinamic
                                     value={nombreProfesional}
                                     onChange={(e) => setNombreProfesional(e.target.value)}
+<<<<<<< HEAD
                                     placeholder="Ej: Dr. Juan Pérez, Box 1, .."
+=======
+                                    placeholder="Ej: Sucursal Valdivia Box 1"
+>>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                                     className="w-full"
                                 />
 
@@ -246,11 +261,19 @@ export default function Profesionales() {
                             </div>
 
                             <div className="space-y-1.5">
+<<<<<<< HEAD
                                 <label className="text-sm font-medium text-slate-700">Descripción de la Agenda</label>
                                 <TextAreaDinamic
                                     value={descripcionProfesional}
                                     onChange={(e) => setDescripcionProfesional(e.target.value)}
                                     placeholder="Ej: Sucursal los lagos.."
+=======
+                                <label className="text-sm font-medium text-slate-700">Descripción de la Sucursal</label>
+                                <TextAreaDinamic
+                                    value={descripcionProfesional}
+                                    onChange={(e) => setDescripcionProfesional(e.target.value)}
+                                    placeholder="Ej: Sucursal con Box ambientado preferiblemente para profesionales de la Psicología"
+>>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                                     className="w-full"
                                 />
                             </div>
@@ -260,14 +283,22 @@ export default function Profesionales() {
                             <ButtonDinamic
                                 onClick={() => insertarProfesional(nombreProfesional,descripcionProfesional)}
                             >
+<<<<<<< HEAD
                                 Guardar Agenda
+=======
+                                Guardar Sucursal
+>>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                             </ButtonDinamic>
 
                             <ButtonDinamic
                                 onClick={() => actualizarProfesional(nombreProfesional,descripcionProfesional,id_profesional)}
                                 className="bg-blue-700 hover:bg-blue-600"
                             >
+<<<<<<< HEAD
                                 Actualizar Agenda
+=======
+                                Actualizar Sucursal 
+>>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                             </ButtonDinamic>
 
 
@@ -275,7 +306,11 @@ export default function Profesionales() {
                                 onClick={() => eliminarProfesional(id_profesional)}
                                 className="bg-red-700 hover:bg-red-600"
                             >
+<<<<<<< HEAD
                                 Eliminar Agenda
+=======
+                                Eliminar Sucursal
+>>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                             </ButtonDinamic>
                         </div>
                     </div>
@@ -284,8 +319,13 @@ export default function Profesionales() {
                 {/* Selector */}
                 <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                     <div className="space-y-1 mb-5">
+<<<<<<< HEAD
                         <h2 className="text-base font-semibold text-slate-900">Seleccionar Agenda</h2>
                         <p className="text-sm text-slate-500">Seleccione una Agenda para editar o eliminar.</p>
+=======
+                        <h2 className="text-base font-semibold text-slate-900">Seleccionar Sucursal o Box</h2>
+                        <p className="text-sm text-slate-500">Seleccione una sucursal para editar o eliminar.</p>
+>>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                     </div>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                         <div className="flex-1">
@@ -297,7 +337,11 @@ export default function Profesionales() {
                                     label: profesional.nombreProfesional
                                 }))}
 
+<<<<<<< HEAD
                                 placeholder="Selecciona un Agenda"
+=======
+                                placeholder="Selecciona una sucursal"
+>>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                             />
                         </div>
                         <ButtonDinamic

@@ -812,7 +812,7 @@ function CalendarioContent() {
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
-                            <h2 className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Datos del Paciente</h2>
+                            <h2 className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Datos del Cliente</h2>
                         </div>
                         <div className="space-y-3 p-4 md:p-5">
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -845,7 +845,11 @@ function CalendarioContent() {
                                 </div>
 
                                 <div className="sm:col-span-2">
+<<<<<<< HEAD
                                     <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">Agenda</label>
+=======
+                                    <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">Sucursal</label>
+>>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                                     <SelectDinamic
                                         value={id_profesional}
                                         onChange={(e) => setId_profesional(Number(e.target.value))}
@@ -853,7 +857,7 @@ function CalendarioContent() {
                                             value: profesional.id_profesional,
                                             label: profesional.nombreProfesional
                                         }))}
-                                        placeholder="Selecciona un profesional"
+                                        placeholder="Selecciona una Sucursal"
                                     />
                                 </div>
                             </div>
@@ -943,7 +947,7 @@ function CalendarioContent() {
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
                                 </svg>
-                                Eliminar Reservacion
+                                Eliminar Reserva
                             </button>
                         </div>
                     </div>
@@ -1118,13 +1122,13 @@ function CalendarioContent() {
                             </div>
 
                             <div className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5">
-                                <div className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Profesional</div>
+                                <div className="text-[10px] uppercase tracking-[0.18em] text-slate-400">Sucursal</div>
                                 <div className="mt-1 font-semibold text-slate-800">{selectionDraft.profesional}</div>
                             </div>
 
                             <div className="rounded-2xl border border-violet-100 bg-[linear-gradient(180deg,rgba(250,245,255,0.9),rgba(255,255,255,0.96))] px-3 py-3">
                                 <div className="mb-3">
-                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-700">Paciente</p>
+                                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-700">Cliente</p>
                                     <p className="mt-1 text-xs text-slate-500">Completa los datos para crear el agendamiento.</p>
                                 </div>
 
