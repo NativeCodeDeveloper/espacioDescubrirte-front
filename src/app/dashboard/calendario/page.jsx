@@ -845,11 +845,7 @@ function CalendarioContent() {
                                 </div>
 
                                 <div className="sm:col-span-2">
-<<<<<<< HEAD
-                                    <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">Agenda</label>
-=======
                                     <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">Sucursal</label>
->>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                                     <SelectDinamic
                                         value={id_profesional}
                                         onChange={(e) => setId_profesional(Number(e.target.value))}

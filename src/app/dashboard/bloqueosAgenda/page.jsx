@@ -220,13 +220,8 @@ const [id_profesional, setId_profesional] = useState("");
 
                 <div className="max-w-7xl mx-auto mb-4">
                     <div className="flex items-center justify-between">
-<<<<<<< HEAD
-                        <h1 className="text-lg font-semibold text-slate-900">Bloqueo de Agendas</h1>
-                        <InfoButton informacion={"En este apartado puede ingresar los períodos en los que una agenda en específico no atenderá. Los bloqueos pueden abarcar horas, días completos, semanas, meses o cualquier rango de tiempo que necesite.\n\nPara ingresar un bloqueo, debe completar todos los campos del formulario: seleccionar el profesional, definir el rango de fechas y horas, e indicar el motivo del bloqueo.\n\nPara desbloquear un horario, busque el bloqueo en la tabla inferior y presione el botón Eliminar.\n\nImportante: los bloqueos no son editables. Si necesita modificar un bloqueo existente, debe eliminarlo e ingresarlo nuevamente con los datos correctos."}/>
-=======
                         <h1 className="text-lg font-semibold text-slate-900">Bloqueo de Agenda por Sucursal</h1>
                         <InfoButton informacion={"En este apartado puede ingresar los períodos en los que una sucursal específica no estará disponible. Los bloqueos pueden abarcar horas, días completos, semanas, meses o cualquier rango de tiempo que necesite.\n\nPara ingresar un bloqueo, debe completar todos los campos del formulario: seleccionar la sucursal, definir el rango de fechas y horas, e indicar el motivo del bloqueo.\n\nPara desbloquear un horario, busque el bloqueo en la tabla inferior y presione el botón Eliminar.\n\nImportante: los bloqueos no son editables. Si necesita modificar un bloqueo existente, debe eliminarlo e ingresarlo nuevamente con los datos correctos."}/>
->>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                     </div>
                     <div className="h-px w-full bg-slate-200 mt-3"></div>
                 </div>
@@ -255,11 +250,7 @@ const [id_profesional, setId_profesional] = useState("");
                                 <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
                                     <div className="flex items-center gap-2 mb-2">
                                         <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold">1</span>
-<<<<<<< HEAD
-                                        <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Agendas</label>
-=======
                                         <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Sucursal</label>
->>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                                     </div>
                                     <SelectDinamic
                                         value={id_profesional}
@@ -343,11 +334,7 @@ const [id_profesional, setId_profesional] = useState("");
                                     <TableCaption className="text-xs text-slate-500">Lista de bloqueos por Sucursales</TableCaption>
                                     <TableHeader>
                                         <TableRow>
-<<<<<<< HEAD
-                                            <TableHead className="text-xs text-slate-600">Agenda</TableHead>
-=======
                                             <TableHead className="text-xs text-slate-600">Sucursal</TableHead>
->>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                                             <TableHead className="text-xs text-slate-600">Motivo</TableHead>
                                             <TableHead className="text-xs text-slate-600">Fecha Inicio</TableHead>
                                             <TableHead className="text-xs text-slate-600">Hora Inicio</TableHead>
@@ -389,13 +376,8 @@ const [id_profesional, setId_profesional] = useState("");
 
                 <div className="max-w-7xl mx-auto mb-7">
                     <div className="flex items-center justify-between">
-<<<<<<< HEAD
-                        <h1 className="text-3xl font-semibold text-slate-900">Bloqueo de Agendas</h1>
-                        <InfoButton informacion={"En este apartado puede ingresar los períodos en los que una agenda en específico no atenderá. Los bloqueos pueden abarcar horas, días completos, semanas, meses o cualquier rango de tiempo que necesite.\n\nPara ingresar un bloqueo, debe completar todos los campos del formulario: seleccionar el profesional, definir el rango de fechas y horas, e indicar el motivo del bloqueo.\n\nPara desbloquear un horario, busque el bloqueo en la tabla inferior y presione el botón Eliminar.\n\nImportante: los bloqueos no son editables. Si necesita modificar un bloqueo existente, debe eliminarlo e ingresarlo nuevamente con los datos correctos."}/>
-=======
                         <h1 className="text-3xl font-semibold text-slate-900">Bloqueo de Agenda por Sucursal</h1>
-                        <InfoButton informacion={"En este apartado puede ingresar los períodos en los que un profesional específico no atenderá. Los bloqueos pueden abarcar horas, días completos, semanas, meses o cualquier rango de tiempo que necesite.\n\nPara ingresar un bloqueo, debe completar todos los campos del formulario: seleccionar el profesional, definir el rango de fechas y horas, e indicar el motivo del bloqueo.\n\nPara desbloquear un horario, busque el bloqueo en la tabla inferior y presione el botón Eliminar.\n\nImportante: los bloqueos no son editables. Si necesita modificar un bloqueo existente, debe eliminarlo e ingresarlo nuevamente con los datos correctos."}/>
->>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
+                        <InfoButton informacion={"En este apartado puede ingresar los períodos en los que una sucursal específica no estará disponible. Los bloqueos pueden abarcar horas, días completos, semanas, meses o cualquier rango de tiempo que necesite.\n\nPara ingresar un bloqueo, debe completar todos los campos del formulario: seleccionar la sucursal, definir el rango de fechas y horas, e indicar el motivo del bloqueo.\n\nPara desbloquear un horario, busque el bloqueo en la tabla inferior y presione el botón Eliminar.\n\nImportante: los bloqueos no son editables. Si necesita modificar un bloqueo existente, debe eliminarlo e ingresarlo nuevamente con los datos correctos."}/>
                     </div>
                     <div className="h-px w-full bg-slate-200 mt-4"></div>
                 </div>
@@ -413,11 +395,7 @@ const [id_profesional, setId_profesional] = useState("");
                                 </div>
                                 <div>
                                     <h2 className="text-lg font-semibold text-slate-900">Nuevo Bloqueo de Agenda</h2>
-<<<<<<< HEAD
-                                    <p className="text-sm text-slate-400">Bloquea un rango horario para una agenda</p>
-=======
                                     <p className="text-sm text-slate-400">Bloquea un rango horario para una Sucursal</p>
->>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
                                 </div>
                             </div>
 
@@ -428,7 +406,7 @@ const [id_profesional, setId_profesional] = useState("");
                                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
                                     <div className="flex items-center gap-2 mb-3">
                                         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-[11px] font-bold">1</span>
-                                        <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Agendas</label>
+                                        <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">Sucursal</label>
                                     </div>
                                     <SelectDinamic
                                         value={id_profesional}
@@ -437,7 +415,7 @@ const [id_profesional, setId_profesional] = useState("");
                                             value: profesional.id_profesional,
                                             label: profesional.nombreProfesional
                                         }))}
-                                        placeholder="Selecciona un profesional"
+                                        placeholder="Selecciona una Sucursal"
                                     />
                                 </div>
 

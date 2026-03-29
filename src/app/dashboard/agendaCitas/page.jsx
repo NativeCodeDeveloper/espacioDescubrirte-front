@@ -353,11 +353,7 @@ export default function AgendaCitas() {
                                         </button>
                                     </div>
                                     <div className="mt-5">
-<<<<<<< HEAD
-                                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Agenda</label>
-=======
-                                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Cliente</label>
->>>>>>> 57d6e11 (Cambios 001 - detalles encontrados por cliente)
+                                        <label className="block text-sm font-medium text-slate-700 mb-1.5">Profesional</label>
                                         <SelectDinamic
                                             value={id_profesional}
                                             onChange={(e) => setId_profesional(e.target.value)}
