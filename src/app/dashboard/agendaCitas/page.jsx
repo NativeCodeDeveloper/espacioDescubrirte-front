@@ -42,10 +42,24 @@ export default function AgendaCitas() {
     const [listaProfesionales, setListaProfesionales] = useState([]);
     const [id_profesional, setId_profesional] = useState("");
 
+    function normalizarListaRespuesta(respuesta) {
+        if (Array.isArray(respuesta)) return respuesta;
+        if (Array.isArray(respuesta?.data)) return respuesta.data;
+        if (Array.isArray(respuesta?.results)) return respuesta.results;
+        return [];
+    }
+
+    const listaReservas = Array.isArray(dataLista) ? dataLista : [];
+    const profesionales = Array.isArray(listaProfesionales) ? listaProfesionales : [];
 
 
     async function buscarPorProfesional(id_profesional) {
         try {
+            if (!id_profesional) {
+                setdataLista([]);
+                return;
+            }
+
             const res = await fetch(`${API}/reservaPacientes/seleccionarPorProfesional`, {
                 method: "POST",
                 headers: {
@@ -57,13 +71,15 @@ export default function AgendaCitas() {
             });
 
             const respuestaBackend = await res.json();
+            const reservas = normalizarListaRespuesta(respuestaBackend);
 
-            if (respuestaBackend.length > 0) {
-                setdataLista(respuestaBackend);
+            setdataLista(reservas);
+
+            if (reservas.length > 0) {
                 return toast.success("Reservas con el profesional encontradas!")
             }
 
-
+            return toast.error("No se encontraron reservas para el profesional seleccionado.");
         } catch (error) {
             console.log(error);
             return toast.error("No ha sido posible buscar, contacte a soporte Tecnico de Medify");
@@ -71,6 +87,7 @@ export default function AgendaCitas() {
     }
 
     useEffect(() => {
+        if (!id_profesional) return;
         buscarPorProfesional(id_profesional)
     },[id_profesional])
 
@@ -90,11 +107,13 @@ export default function AgendaCitas() {
 
             }else{
                 const respustaBackend = await res.json();
+                const profesionales = normalizarListaRespuesta(respustaBackend);
 
-                if(respustaBackend){
-                    setListaProfesionales(respustaBackend);
+                if(profesionales.length > 0){
+                    setListaProfesionales(profesionales);
 
                 }else{
+                    setListaProfesionales([]);
                     return toast.error('Error al cargar los profesionales, por favor intente nuevamente.');
                 }
             }
@@ -139,10 +158,11 @@ export default function AgendaCitas() {
                 return toast.error("Error al buscar citas. Por favor, intente de nuevo.");
             } else {
                 const respuestaBackend = await res.json();
+                const reservas = normalizarListaRespuesta(respuestaBackend);
 
-                if (respuestaBackend && Array.isArray(respuestaBackend) && respuestaBackend.length > 0) {
-                    setdataLista(respuestaBackend);
-                    return toast.success(`Se encontraron ${respuestaBackend.length} citas en el período seleccionado.`);
+                if (reservas.length > 0) {
+                    setdataLista(reservas);
+                    return toast.success(`Se encontraron ${reservas.length} citas en el período seleccionado.`);
                 } else {
                     setdataLista([]);
                     return toast.success("No se encontraron citas en el período seleccionado.");
@@ -170,11 +190,13 @@ export default function AgendaCitas() {
                 return toast.error("Debe ingresar datos para filtrar.");
             } else {
                 const respuestaBackend = await res.json();
+                const reservas = normalizarListaRespuesta(respuestaBackend);
 
-                if (respuestaBackend.length > 0) {
-                    setdataLista(respuestaBackend);
+                if (reservas.length > 0) {
+                    setdataLista(reservas);
                     return toast.success("Similitud de RUT encontrada")
                 } else {
+                    setdataLista([]);
                     return toast.error("No se han encontrado similitudes")
                 }
             }
@@ -200,11 +222,13 @@ export default function AgendaCitas() {
                 return toast.error("Debe ingresar datos para filtrar.");
             } else {
                 const respuestaBackend = await res.json();
+                const reservas = normalizarListaRespuesta(respuestaBackend);
 
-                if (respuestaBackend.length > 0) {
-                    setdataLista(respuestaBackend);
+                if (reservas.length > 0) {
+                    setdataLista(reservas);
                     return toast.success("Similitud de nombre encontrada")
                 } else {
+                    setdataLista([]);
                     return toast.error("No se han encontrado similitudes de nombres")
                 }
             }
@@ -223,9 +247,7 @@ export default function AgendaCitas() {
             });
 
             const respuestaBackend = await res.json();
-            if (respuestaBackend) {
-                setdataLista(respuestaBackend);
-            }
+            setdataLista(normalizarListaRespuesta(respuestaBackend));
         } catch (err) {
             console.log(err);
             return toast.error(err.message);
@@ -257,9 +279,11 @@ export default function AgendaCitas() {
                 return toast.error("Debe seleccionar un estado de reserva.");
             } else {
                 const dataBackend = await res.json();
-                if (dataBackend.length > 0) {
-                    setdataLista(dataBackend);
+                const reservas = normalizarListaRespuesta(dataBackend);
+                if (reservas.length > 0) {
+                    setdataLista(reservas);
                 } else {
+                    setdataLista([]);
                     return toast.error("No se han encontrado similitudes con el estado seleccionado")
                 }
             }
@@ -280,6 +304,107 @@ export default function AgendaCitas() {
         if (lower === 'confirmada') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
         if (lower === 'anulada') return 'bg-red-50 text-red-600 border-red-200';
         return 'bg-amber-50 text-amber-700 border-amber-200';
+    }
+
+    function obtenerTextoPlano(valor) {
+        if (valor === null || valor === undefined || valor === "") return "-";
+        return String(valor);
+    }
+
+    function escaparHtml(valor) {
+        return obtenerTextoPlano(valor)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
+    }
+
+    function obtenerSucursal(reserva) {
+        return (
+            reserva?.sucursal ??
+            reserva?.nombreSucursal ??
+            reserva?.sede ??
+            reserva?.nombreSede ??
+            "-"
+        );
+    }
+
+    function obtenerBox(reserva) {
+        return (
+            reserva?.box ??
+            reserva?.nombreBox ??
+            reserva?.numeroBox ??
+            reserva?.boxNombre ??
+            "-"
+        );
+    }
+
+    function descargarExcelReservas() {
+        if (!listaReservas.length) {
+            return toast.error("No hay reservas para exportar.");
+        }
+
+        const filas = listaReservas.map((reserva) => ({
+            fechaAgendamiento: formatearFecha(reserva.fechaInicio),
+            nombreCliente: `${reserva.nombrePaciente ?? ""} ${reserva.apellidoPaciente ?? ""}`.trim() || "-",
+            rutCliente: reserva.rut,
+            box: reserva?.nombreProfesional ?? "-",
+            estadoReserva: reserva.estadoReserva
+        }));
+
+        const encabezados = [
+            "Fecha de agendamiento",
+            "Nombre cliente",
+            "Rut Cliente",
+            "Box",
+            "Estado de la reserva"
+        ];
+
+        const contenidoTabla = filas.map((fila) => `
+            <tr>
+                <td>${escaparHtml(fila.fechaAgendamiento)}</td>
+                <td>${escaparHtml(fila.nombreCliente)}</td>
+                <td>${escaparHtml(fila.rutCliente)}</td>
+                <td>${escaparHtml(fila.box)}</td>
+                <td>${escaparHtml(fila.estadoReserva)}</td>
+            </tr>
+        `).join("");
+
+        const contenido = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office"
+                  xmlns:x="urn:schemas-microsoft-com:office:excel"
+                  xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charSet="utf-8" />
+                </head>
+                <body>
+                    <table>
+                        <thead>
+                            <tr>
+                                ${encabezados.map((encabezado) => `<th>${escaparHtml(encabezado)}</th>`).join("")}
+                            </tr>
+                        </thead>
+                        <tbody>${contenidoTabla}</tbody>
+                    </table>
+                </body>
+            </html>
+        `;
+
+        const blob = new Blob(["\ufeff", contenido], {
+            type: "application/vnd.ms-excel;charset=utf-8;"
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const fechaArchivo = new Date().toISOString().slice(0, 10);
+        link.href = url;
+        link.download = `reservas-agenda-${fechaArchivo}.xls`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        toast.success("Excel descargado correctamente.");
     }
 
     return (
@@ -357,7 +482,7 @@ export default function AgendaCitas() {
                                         <SelectDinamic
                                             value={id_profesional}
                                             onChange={(e) => setId_profesional(e.target.value)}
-                                            options={listaProfesionales.map(profesional => ({
+                                            options={profesionales.map(profesional => ({
                                                 value: profesional.id_profesional,
                                                 label: profesional.nombreProfesional
                                             }))}
@@ -417,23 +542,35 @@ export default function AgendaCitas() {
                                 </svg>
                                 <h2 className="text-sm font-semibold text-slate-700 tracking-wide uppercase">Reservaciones</h2>
                                 <span className="inline-flex items-center justify-center h-6 min-w-[24px] px-2 rounded-full text-xs font-bold bg-sky-100 text-sky-700">
-                                    {dataLista.length}
+                                    {listaReservas.length}
                                 </span>
                             </div>
 
                             <div className="w-full sm:w-auto">
-                                <Select value={estadoReserva} onValueChange={(value) => setestadoReserva(value)}>
-                                    <SelectTrigger className="h-9 w-full sm:w-[200px] bg-white border border-slate-200 text-slate-700 text-sm rounded-lg shadow-sm">
-                                        <SelectValue placeholder="Filtrar por estado"/>
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-white border border-slate-200 shadow-lg z-50">
-                                        <SelectGroup>
-                                            <SelectItem value="reservada">Reservada</SelectItem>
-                                            <SelectItem value="anulada">Anulada</SelectItem>
-                                            <SelectItem value="confirmada">Confirmada</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
+                                <div className="flex flex-col sm:flex-row gap-2">
+                                    <Select value={estadoReserva} onValueChange={(value) => setestadoReserva(value)}>
+                                        <SelectTrigger className="h-9 w-full sm:w-[200px] bg-white border border-slate-200 text-slate-700 text-sm rounded-lg shadow-sm">
+                                            <SelectValue placeholder="Filtrar por estado"/>
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-white border border-slate-200 shadow-lg z-50">
+                                            <SelectGroup>
+                                                <SelectItem value="reservada">Reservada</SelectItem>
+                                                <SelectItem value="anulada">Anulada</SelectItem>
+                                                <SelectItem value="confirmada">Confirmada</SelectItem>
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+
+                                    <button
+                                        onClick={descargarExcelReservas}
+                                        disabled={!listaReservas.length}
+                                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 text-sm font-medium text-emerald-700 transition-colors duration-150 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 16V4m0 12l-4-4m4 4l4-4M4 20h16"/>
+                                        </svg>
+                                        Descargar Excel
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -451,7 +588,7 @@ export default function AgendaCitas() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {dataLista.map((data, i) => (
+                                    {listaReservas.map((data, i) => (
                                         <TableRow
                                             key={data.id_reserva}
                                             className={"hover:bg-sky-50/50 transition-colors duration-100 " + (i % 2 === 0 ? 'bg-white' : 'bg-slate-50/50')}>
