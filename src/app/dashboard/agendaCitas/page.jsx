@@ -365,7 +365,7 @@ export default function AgendaCitas() {
             <tr>
                 <td>${escaparHtml(fila.fechaAgendamiento)}</td>
                 <td>${escaparHtml(fila.nombreCliente)}</td>
-                <td>${escaparHtml(fila.rutCliente)}</td>
+                <td style="mso-number-format:'\\@';">${escaparHtml(fila.rutCliente)}</td>
                 <td>${escaparHtml(fila.box)}</td>
                 <td>${escaparHtml(fila.estadoReserva)}</td>
             </tr>
