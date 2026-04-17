@@ -52,6 +52,52 @@ export default function AgendaCitas() {
     const listaReservas = Array.isArray(dataLista) ? dataLista : [];
     const profesionales = Array.isArray(listaProfesionales) ? listaProfesionales : [];
 
+    function descargarExcelGenerico({filas, encabezados, nombreArchivo}) {
+        const contenidoTabla = filas.map((fila) => `
+            <tr>
+                ${encabezados.map((encabezado) => {
+                    const valor = fila[encabezado.key];
+                    const estilo = encabezado.esRut ? ` style="mso-number-format:'\\@';"` : "";
+                    return `<td${estilo}>${escaparHtml(valor)}</td>`;
+                }).join("")}
+            </tr>
+        `).join("");
+
+        const contenido = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office"
+                  xmlns:x="urn:schemas-microsoft-com:office:excel"
+                  xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charSet="utf-8" />
+                </head>
+                <body>
+                    <table>
+                        <thead>
+                            <tr>
+                                ${encabezados.map((encabezado) => `<th>${escaparHtml(encabezado.label)}</th>`).join("")}
+                            </tr>
+                        </thead>
+                        <tbody>${contenidoTabla}</tbody>
+                    </table>
+                </body>
+            </html>
+        `;
+
+        const blob = new Blob(["\ufeff", contenido], {
+            type: "application/vnd.ms-excel;charset=utf-8;"
+        });
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const fechaArchivo = new Date().toISOString().slice(0, 10);
+        link.href = url;
+        link.download = `${nombreArchivo}-${fechaArchivo}.xls`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+    }
+
 
     async function buscarPorProfesional(id_profesional) {
         try {
@@ -354,57 +400,87 @@ export default function AgendaCitas() {
         }));
 
         const encabezados = [
-            "Fecha de agendamiento",
-            "Nombre cliente",
-            "Rut Cliente",
-            "Box",
-            "Estado de la reserva"
+            { key: "fechaAgendamiento", label: "Fecha de agendamiento" },
+            { key: "nombreCliente", label: "Nombre cliente" },
+            { key: "rutCliente", label: "Rut Cliente", esRut: true },
+            { key: "box", label: "Box" },
+            { key: "estadoReserva", label: "Estado de la reserva" }
         ];
 
-        const contenidoTabla = filas.map((fila) => `
-            <tr>
-                <td>${escaparHtml(fila.fechaAgendamiento)}</td>
-                <td>${escaparHtml(fila.nombreCliente)}</td>
-                <td style="mso-number-format:'\\@';">${escaparHtml(fila.rutCliente)}</td>
-                <td>${escaparHtml(fila.box)}</td>
-                <td>${escaparHtml(fila.estadoReserva)}</td>
-            </tr>
-        `).join("");
-
-        const contenido = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office"
-                  xmlns:x="urn:schemas-microsoft-com:office:excel"
-                  xmlns="http://www.w3.org/TR/REC-html40">
-                <head>
-                    <meta charSet="utf-8" />
-                </head>
-                <body>
-                    <table>
-                        <thead>
-                            <tr>
-                                ${encabezados.map((encabezado) => `<th>${escaparHtml(encabezado)}</th>`).join("")}
-                            </tr>
-                        </thead>
-                        <tbody>${contenidoTabla}</tbody>
-                    </table>
-                </body>
-            </html>
-        `;
-
-        const blob = new Blob(["\ufeff", contenido], {
-            type: "application/vnd.ms-excel;charset=utf-8;"
+        descargarExcelGenerico({
+            filas,
+            encabezados,
+            nombreArchivo: "reservas-agenda"
         });
-
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        const fechaArchivo = new Date().toISOString().slice(0, 10);
-        link.href = url;
-        link.download = `reservas-agenda-${fechaArchivo}.xls`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
         toast.success("Excel descargado correctamente.");
+    }
+
+    async function descargarExcelResumenVentas() {
+        try {
+            const body = fechaInicio && fechaFinalizacion
+                ? {fechaInicio, fechaFinalizacion}
+                : {};
+
+            const res = await fetch(`${API}/reservaPacientes/resumenVentas`, {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body),
+                mode: "cors",
+                cache: "no-cache"
+            });
+
+            if (!res.ok) {
+                return toast.error("No fue posible generar el resumen de ventas.");
+            }
+
+            const respuestaBackend = await res.json();
+            const resumenVentas = normalizarListaRespuesta(respuestaBackend);
+
+            if (!resumenVentas.length) {
+                return toast.error("No hay pagos registrados para exportar en el resumen de ventas.");
+            }
+
+            const filas = resumenVentas.map((venta) => ({
+                fechaAgendadaReferencia: formatearFecha(venta.fechaAgendadaReferencia),
+                cliente: `${venta.nombrePaciente ?? ""} ${venta.apellidoPaciente ?? ""}`.trim() || "-",
+                rut: venta.rut,
+                correo: venta.email,
+                telefono: venta.telefono,
+                cantidadPagada: venta.cantidadPagada,
+                montoPagado: venta.montoPagado ?? venta.montoTotal ?? "-",
+                preferenceId: venta.preference_id,
+                numeroTransaccion: venta.numeroTransaccionMercadoPago,
+                estadoPago: venta.estadoPago,
+                observacion: "Resumen de pagos por cliente. No representa la cantidad real de agendamientos realizados."
+            }));
+
+            const encabezados = [
+                { key: "fechaAgendadaReferencia", label: "Fecha agendada de referencia" },
+                { key: "cliente", label: "Cliente" },
+                { key: "rut", label: "RUT", esRut: true },
+                { key: "correo", label: "Correo" },
+                { key: "telefono", label: "Telefono" },
+                { key: "cantidadPagada", label: "Cantidad pagada" },
+                { key: "montoPagado", label: "Monto pagado" },
+                { key: "preferenceId", label: "Preference ID" },
+                { key: "numeroTransaccion", label: "Numero transaccion Mercado Pago" },
+                { key: "estadoPago", label: "Estado pago" },
+                { key: "observacion", label: "Observacion" }
+            ];
+
+            descargarExcelGenerico({
+                filas,
+                encabezados,
+                nombreArchivo: "resumen-ventas"
+            });
+            return toast.success("Resumen de ventas descargado correctamente.");
+        } catch (error) {
+            console.log(error);
+            return toast.error("Error inesperado al generar el resumen de ventas.");
+        }
     }
 
     return (
@@ -570,8 +646,24 @@ export default function AgendaCitas() {
                                         </svg>
                                         Descargar Excel
                                     </button>
+
+                                    <button
+                                        onClick={descargarExcelResumenVentas}
+                                        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-cyan-200 bg-cyan-50 px-4 text-sm font-medium text-cyan-700 transition-colors duration-150 hover:bg-cyan-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 16V4m0 12l-4-4m4 4l4-4M4 20h16"/>
+                                        </svg>
+                                        Descargar Resumen de Ventas
+                                    </button>
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="border-b border-slate-100 bg-amber-50/70 px-5 py-3">
+                            <p className="text-xs font-medium text-amber-800">
+                                El archivo <span className="font-semibold">Resumen de ventas</span> muestra pagos por cliente y transaccion de Mercado Pago.
+                                No representa la cantidad real de agendamientos realizados.
+                            </p>
                         </div>
 
                         <div className="overflow-x-auto">

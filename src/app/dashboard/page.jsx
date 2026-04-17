@@ -153,6 +153,7 @@ export default function DashboardHome() {
     }, []);
 
     const citasHoy = dataLista.map((cita) => ({
+        id: cita.id_reserva,
         hora: cita.horaInicio || "--:--",
         paciente: `${cita.nombrePaciente || ""} ${cita.apellidoPaciente || ""}`.trim(),
         tipo: cita.estadoReserva || "Sin estado",
@@ -307,51 +308,55 @@ export default function DashboardHome() {
                                         initial="hidden"
                                         animate="visible"
                                         custom={idx * 0.5 + 6}
-                                        className="group flex items-center gap-3 px-4 py-2.5 transition-all duration-200 hover:bg-slate-50"
                                     >
-                                        <div className="flex flex-col items-center">
-                                            <span className="text-[13px] font-bold tabular-nums text-slate-900">{cita.hora}</span>
-                                            <span className="text-[10px] font-medium text-slate-400">hrs</span>
-                                        </div>
+                                        <Link
+                                            href={cita.id ? `/dashboard/AgendaDetalle/${cita.id}` : "/dashboard/agendaCitas"}
+                                            className="group flex items-center gap-3 px-4 py-2.5 transition-all duration-200 hover:bg-slate-50"
+                                        >
+                                            <div className="flex flex-col items-center">
+                                                <span className="text-[13px] font-bold tabular-nums text-slate-900">{cita.hora}</span>
+                                                <span className="text-[10px] font-medium text-slate-400">hrs</span>
+                                            </div>
 
-                                        <div className="flex flex-col items-center gap-0.5">
-                                            <div className={cn(
-                                                "h-2 w-2 rounded-full",
-                                                cita.estado === "confirmada" && "bg-emerald-400 shadow-sm shadow-emerald-400/40",
-                                                cita.estado === "reservada" && "bg-indigo-400 shadow-sm shadow-indigo-400/40",
-                                                cita.estado === "anulada" && "bg-red-400 shadow-sm shadow-red-400/40",
-                                                !["confirmada", "reservada", "anulada"].includes(cita.estado) && "bg-slate-300"
-                                            )} />
-                                            <div className="h-6 w-px bg-slate-200" />
-                                        </div>
+                                            <div className="flex flex-col items-center gap-0.5">
+                                                <div className={cn(
+                                                    "h-2 w-2 rounded-full",
+                                                    cita.estado === "confirmada" && "bg-emerald-400 shadow-sm shadow-emerald-400/40",
+                                                    cita.estado === "reservada" && "bg-indigo-400 shadow-sm shadow-indigo-400/40",
+                                                    cita.estado === "anulada" && "bg-red-400 shadow-sm shadow-red-400/40",
+                                                    !["confirmada", "reservada", "anulada"].includes(cita.estado) && "bg-slate-300"
+                                                )} />
+                                                <div className="h-6 w-px bg-slate-200" />
+                                            </div>
 
-                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-bold text-slate-600">
-                                            {cita.iniciales}
-                                        </div>
+                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-bold text-slate-600">
+                                                {cita.iniciales}
+                                            </div>
 
-                                        <div className="min-w-0 flex-1">
-                                            <div className="truncate text-[12px] font-semibold text-slate-900">{cita.paciente}</div>
-                                            <div className="text-[11px] text-slate-500">{cita.tipo}</div>
-                                        </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="truncate text-[12px] font-semibold text-slate-900">{cita.paciente}</div>
+                                                <div className="text-[11px] text-slate-500">{cita.tipo}</div>
+                                            </div>
 
-                                        <span className={cn(
-                                            "hidden sm:inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium capitalize",
-                                            cita.estado === "confirmada" && "bg-emerald-500/15 text-emerald-400",
-                                            cita.estado === "reservada" && "bg-indigo-500/15 text-indigo-400",
-                                            cita.estado === "anulada" && "bg-red-500/15 text-red-400",
-                                            !["confirmada", "reservada", "anulada"].includes(cita.estado) && "bg-slate-100 text-slate-500"
-                                        )}>
                                             <span className={cn(
-                                                "h-1 w-1 rounded-full",
-                                                cita.estado === "confirmada" && "bg-emerald-400",
-                                                cita.estado === "reservada" && "bg-indigo-400",
-                                                cita.estado === "anulada" && "bg-red-400",
-                                                !["confirmada", "reservada", "anulada"].includes(cita.estado) && "bg-slate-300"
-                                            )} />
-                                            {cita.nombreProfesional}
-                                        </span>
+                                                "hidden sm:inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium capitalize",
+                                                cita.estado === "confirmada" && "bg-emerald-500/15 text-emerald-400",
+                                                cita.estado === "reservada" && "bg-indigo-500/15 text-indigo-400",
+                                                cita.estado === "anulada" && "bg-red-500/15 text-red-400",
+                                                !["confirmada", "reservada", "anulada"].includes(cita.estado) && "bg-slate-100 text-slate-500"
+                                            )}>
+                                                <span className={cn(
+                                                    "h-1 w-1 rounded-full",
+                                                    cita.estado === "confirmada" && "bg-emerald-400",
+                                                    cita.estado === "reservada" && "bg-indigo-400",
+                                                    cita.estado === "anulada" && "bg-red-400",
+                                                    !["confirmada", "reservada", "anulada"].includes(cita.estado) && "bg-slate-300"
+                                                )} />
+                                                {cita.nombreProfesional}
+                                            </span>
 
-                                        <ChevronRight className="h-4 w-4 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
+                                            <ChevronRight className="h-4 w-4 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100" />
+                                        </Link>
                                     </motion.div>
                                 ))
                             )}
